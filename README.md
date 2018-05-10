@@ -1,1 +1,1 @@
-# The Great Chip8 Emulator
+# The Great Chip-8 Emulator

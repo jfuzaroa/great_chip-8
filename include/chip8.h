@@ -4,77 +4,72 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <string.h>
-#include <errno.h>
 
-#define CHIP8_MEM_SIZE 0xFFFU
-#define CHIP8_STACK_SIZE 24U
-#define CHIP8_RES_WIDTH 64U
-#define CHIP8_RES_HEIGHT 32U
-#define CHIP8_KEY_SIZE 0xFU
+#define CHIP8_MEM_SIZE 0xFFF
+#define CHIP8_STACK_SIZE 24
+#define CHIP8_DISP_RES_WIDTH 64
+#define CHIP8_DISP_RES_HEIGHT 32
+#define CHIP8_KEY_SIZE 0xF
+
+typedef uint16_t chip8_inst_size;
 
 /*
  * @brief contains register indices for register array
  */
-enum register_unit {
+enum chip8_register_bank {
 	V0, V1, V2, V3,
 	V4, V5, V6, V7,
 	V8, V9, VA, VB,
 	VC, VD, VE, VF,
-	REG_UNIT_SIZE
+	REG_BANK_SIZE
 };
 
 /* 
- * @brief chip8 virtualized as a structure
+ * @brief chip8 virtual machine structure
  */
-typedef struct chip8_v {
+typedef struct chip8_virtual_machine {
+	uint16_t pc; /* program counter */
+	uint16_t idx; /* index register */
+	chip8_inst_size inst; /* current instruction */
+	uint16_t stack[CHIP8_STACK_SIZE]; /* memory stack */
 
-	uint16_t pc; // program counter
-	uint16_t ind; // index register
-	uint16_t opcode; // current opcode
-	uint16_t stack[CHIP8_STACK_SIZE]; // memory stack
+	uint8_t regs[REG_BANK_SIZE]; /* register unit array */
+	uint8_t mem[CHIP8_MEM_SIZE];
+	uint8_t gfx[CHIP8_DISP_RES_WIDTH][CHIP8_DISP_RES_HEIGHT]; /* pixel array */
+	uint8_t keys[CHIP8_KEY_SIZE];
 
-	uint8_t registers[REG_UNIT_SIZE]; // register unit array
-	uint8_t memory[CHIP8_MEM_SIZE];
-	uint8_t gfx[CHIP8_RES_WIDTH][CHIP8_RES_HEIGHT]; // pixel array (screen)
-	uint8_t keyboard[CHIP8_KEY_SIZE];
+	uint8_t dly_tmr; /* used for timing events */
+	uint8_t snd_tmr; /* used for sound effects */
+} chip8_virt_mach;
 
-	uint8_t delay_timer; // used for timing events in games 
-	uint8_t sound_timer; // used for sound effects
-} chip8_v;
+typedef enum chip8_return_codes {
+	CHIP8_SUCCESS,
+	CHIP8_FAILURE
+} chip8_ret_code; 
 
 /*
- * @brief inline chip8 constructor
+ * @brief chip8_vm constructor
  */
-inline 
-chip8_v* chip8_new(void) {
-	return calloc(1, sizeof(chip8_v));
+inline chip8_virt_mach* chip8_new(void)
+{
+	return calloc(1, sizeof(chip8_virt_mach));
 }
 
 /*
- * @brief inline chip8 content destroyer
+ * @brief chip8_vm content destroyer for resetting chip8_vm structure
  */
-inline 
-void chip8_destroy(chip8_v chip8_ptr[static 1]) {
-	if (chip8_ptr) {
-		*chip8_ptr = (chip8_v const) { 0 };
-	} else {
-		errno = EINVAL;
-		fprintf(stderr, "Chip8 destruction failed: %s\n", strerror(errno)); 
-	}
+inline void chip8_destroy(chip8_virt_mach chip8_ptr[static 1])
+{
+	if (chip8_ptr) { *chip8_ptr = (chip8_virt_mach) { 0 }; }
 }
 
 /*
- * @brief inline chip8 game loader
+ * @brief read file contents into chip8_vm memory array
  */
-inline 
-FILE* chip8_load_game(chip8_v chip8_ptr[static 1], char const game[static 1]) {
-	if (FILE* game_file = fopen(game, "rb")) {
-		fread(&chip8_ptr->memory[0x200], 0xDFFU, 1U, game_file);
-		fclose(game_file);
-	} else {
-		perror("Chip8 game load failed:");
-	}
+inline int chip8_read(chip8_virt_mach chip8_ptr[static 1], size_t const size,
+		FILE* const chip8_f)
+{
+	return size == fread(&chip8_ptr->mem[0x200], size, 1, chip8_f);
 }
 
 #endif
