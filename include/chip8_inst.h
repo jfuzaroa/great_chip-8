@@ -1,12 +1,14 @@
 #ifndef CHIP8_INST_H
 #define CHIP8_INST_H
 
+#include <stdio.h>
 #include <stdint.h>
 
 /*
  * 
  */
-enum chip8_instrution_set {
+typedef enum chip8_opcode {
+	NOP = -1,
 	RCA, CLS, RTS, JMP, CALL,
 	SKPEI, SKPNEI, SKPE, MOVI, ADDI,
 	MOV, OR, AND, XOR, ADD,
@@ -15,45 +17,50 @@ enum chip8_instrution_set {
 	SKPNKEY, MOVDLY, WTKEY, SETDLY, SETSND,
 	IADD, ISETSPT, IBCD, REGDMP, REGLD,
 	CHIP8_INST_SET_SIZE
-};
+} chip8_opcode ;
 
-typedef void chip8_instruction(chip8_virt_mach chip_ptr[static 1]);
+typedef void chip8_instruction(chip8_vm[static 1]);
 
-inline void chip8_RCA(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_CLS(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_RTS(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_JMP(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_CALL(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SKPEI(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SKPNEI(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SKPE(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_MOVI(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_ADDI(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_MOV(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_OR(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_AND(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_XOR(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_ADD(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SUB(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SHFR(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SUBB(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SHFL(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SKPNE(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_MIV(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_JMPO(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_RNDMSK(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_DRWSPT(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SKPKEY(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SKPNKEY(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_MOVDLY(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_WTKEY(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SETDLY(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_SETSND(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_IADD(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_ISETSPT(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_IBCD(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_REGDMP(chip8_virt_mach chip8_ptr[static 1]);
-inline void chip8_REGLD(chip8_virt_mach chip8_ptr[static 1]);
+inline void chip8_RCA(chip8_vm chip8[static 1])
+{
+	fputs("great-chip-8: RCA opcode executed.\n This shouldn't happen\n",
+			stderr);
+}
+
+inline void chip8_CLS(chip8_vm chip8[static 1]);
+inline void chip8_RTS(chip8_vm chip8[static 1]);
+inline void chip8_JMP(chip8_vm chip8[static 1]);
+inline void chip8_CALL(chip8_vm chip8[static 1]);
+inline void chip8_SKPEI(chip8_vm chip8[static 1]);
+inline void chip8_SKPNEI(chip8_vm chip8[static 1]);
+inline void chip8_SKPE(chip8_vm chip8[static 1]);
+inline void chip8_MOVI(chip8_vm chip8[static 1]);
+inline void chip8_ADDI(chip8_vm chip8[static 1]);
+inline void chip8_MOV(chip8_vm chip8[static 1]);
+inline void chip8_OR(chip8_vm chip8[static 1]);
+inline void chip8_AND(chip8_vm chip8[static 1]);
+inline void chip8_XOR(chip8_vm chip8[static 1]);
+inline void chip8_ADD(chip8_vm chip8[static 1]);
+inline void chip8_SUB(chip8_vm chip8[static 1]);
+inline void chip8_SHFR(chip8_vm chip8[static 1]);
+inline void chip8_SUBB(chip8_vm chip8[static 1]);
+inline void chip8_SHFL(chip8_vm chip8[static 1]);
+inline void chip8_SKPNE(chip8_vm chip8[static 1]);
+inline void chip8_MIV(chip8_vm chip8[static 1]);
+inline void chip8_JMPO(chip8_vm chip8[static 1]);
+inline void chip8_RNDMSK(chip8_vm chip8[static 1]);
+inline void chip8_DRWSPT(chip8_vm chip8[static 1]);
+inline void chip8_SKPKEY(chip8_vm chip8[static 1]);
+inline void chip8_SKPNKEY(chip8_vm chip8[static 1]);
+inline void chip8_MOVDLY(chip8_vm chip8[static 1]);
+inline void chip8_WTKEY(chip8_vm chip8[static 1]);
+inline void chip8_SETDLY(chip8_vm chip8[static 1]);
+inline void chip8_SETSND(chip8_vm chip8[static 1]);
+inline void chip8_IADD(chip8_vm chip8[static 1]);
+inline void chip8_ISETSPT(chip8_vm chip8[static 1]);
+inline void chip8_IBCD(chip8_vm chip8[static 1]);
+inline void chip8_REGDMP(chip8_vm chip8[static 1]);
+inline void chip8_REGLD(chip8_vm chip8[static 1]);
 
 chip8_instruction* const chip8_instruction_set[CHIP8_INST_SET_SIZE] = {
 	[RCA]		= chip8_RCA,
