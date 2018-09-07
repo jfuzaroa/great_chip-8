@@ -1,8 +1,10 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 #include "chip8.h"
-#include "chip8_inst.h"
+#include "chip8_istr.h"
 
 chip8_vm* chip8_new(void);
 void chip8_destroy(chip8_vm[static 1]);
@@ -26,6 +28,7 @@ static chip8_rc chip8_load(chip8_vm chip8[static 1],
 			&& chip8_read(chip8, size, chip8_f)
 			&& !fclose(chip8_f)) {
 		chip8->pc = 0x200;
+		chip8->sp = 0xEA0;
 		chip8->idx = 0;
 		return CHIP8_SUCCESS;
 	}
@@ -39,17 +42,16 @@ ERROR:
  */
 static chip8_word chip8_fetch(chip8_vm chip8[static 1])
 {
-	chip8_word inst = chip8->mem[chip8->pc];
-	inst <<= 8;
-	inst |= chip8->mem[chip8->pc+1];
-	chip8->pc += 2;
-	return inst;
+	chip8_word istr = chip8->mem[chip8->pc];
+	istr <<= 8;
+	istr |= chip8->mem[chip8->pc+1];
+	return istr;
 }
 
-static chip8_opcode chip8_disassemble(chip8_word inst_word)
+static chip8_opcode chip8_disassemble(chip8_word istr_word)
 {
-	chip8_byte lend = (inst_word & 0x00FF);
-	chip8_byte bend = (inst_word & 0xFF00) >> 8;
+	chip8_byte lend = (istr_word & 0x00FF);  /* little end */
+	chip8_byte bend = (istr_word & 0xFF00) >> 8;  /* big end */
 
 	switch (bend & 0xF0) {
 		case 0x00: {
@@ -109,7 +111,7 @@ static chip8_opcode chip8_disassemble(chip8_word inst_word)
 
 static chip8_rc chip8_execute(chip8_vm chip8[static 1])
 {
-	chip8_opcode opcode = chip8_disassemble(chip8->inst_word);
+	chip8_opcode opcode = chip8_disassemble(chip8->istr);
 
 	if (opcode == NOP) {
 		return CHIP8_FAILURE;
@@ -122,6 +124,7 @@ int main(int argc, char* argv[argc+1])
 {
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
+	srand(time(NULL));
 
 	if (!argv[1]) {
 		puts("great-chip-8: missing file operand\n\
@@ -134,7 +137,7 @@ int main(int argc, char* argv[argc+1])
 
 	/* fetch, decode, execute */
 	while (true) {
-		chip8->inst_word = chip8_fetch(chip8);
+		chip8->istr = chip8_fetch(chip8);
 		if (chip8_execute(chip8)) {
 			return CHIP8_SUCCESS;
 		}

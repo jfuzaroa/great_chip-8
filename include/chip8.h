@@ -5,11 +5,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define CHIP8_MEM_SIZE 0xFFF
-#define CHIP8_STACK_SIZE 24
+#define CHIP8_MEM_SIZE 4096
 #define CHIP8_DISP_RES_WIDTH 64
 #define CHIP8_DISP_RES_HEIGHT 32
-#define CHIP8_KEY_SIZE 0xF
+#define CHIP8_KEY_SIZE 16
 
 typedef uint8_t chip8_byte;
 typedef uint16_t chip8_word;
@@ -30,9 +29,9 @@ enum chip8_register {
  */
 typedef struct chip8_virtual_machine {
 	chip8_word pc; /* program counter */
+	chip8_word sp; /* stack pointer */
 	chip8_word idx; /* index register */
-	chip8_word inst_word; /* current instruction */
-	chip8_word stack[CHIP8_STACK_SIZE]; /* memory stack */
+	chip8_word istr; /* current instruction */
 
 	chip8_byte regs[REG_BANK_SIZE]; /* register unit array */
 	chip8_byte mem[CHIP8_MEM_SIZE];
