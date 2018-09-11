@@ -31,7 +31,7 @@ void chip8_RET(chip8_vm chip8[static 1])
  */
 void chip8_JMP(chip8_vm chip8[static 1])
 {
-    chip8->pc = chip8->istr_word & 0x0FFF;
+    chip8->pc = chip8->istr & 0x0FFF;
 }
 
 /*
@@ -42,7 +42,7 @@ void chip8_CALL(chip8_vm chip8[static 1])
     chip8->mem[chip8->sp] = ((chip8->pc+2) & 0xFF00) >> 8;
     chip8->mem[chip8->sp+1] = (chip8->pc+2) & 0x00FF;
     chip8->sp += 2;
-    chip8->pc = chip8->istr_word & 0x0FFF;
+    chip8->pc = chip8->istr & 0x0FFF;
 }
 
 /*
@@ -50,9 +50,9 @@ void chip8_CALL(chip8_vm chip8[static 1])
  */
 void chip8_SKPEI(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_reg = (chip8->istr_word & 0x0F00) >> 8;
+    chip8_register chip8_reg = (chip8->istr & 0x0F00) >> 8;
 
-    if (chip8->regs[chip8_reg] == chip8->istr_word & 0x00FF) {
+    if (chip8->regs[chip8_reg] == chip8->istr & 0x00FF) {
         chip8->pc += 2;
     }
     chip8->pc += 2;
@@ -63,9 +63,9 @@ void chip8_SKPEI(chip8_vm chip8[static 1])
  */
 void chip8_SKPNEI(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_reg = (chip8->istr_word & 0x0F00) >> 8;
+    chip8_register chip8_reg = (chip8->istr & 0x0F00) >> 8;
 
-    if (chip8->regs[chip8_reg] != chip8->istr_word & 0x00FF) {
+    if (chip8->regs[chip8_reg] != chip8->istr & 0x00FF) {
         chip8->pc += 2;
     }
     chip8->pc += 2;
@@ -76,8 +76,8 @@ void chip8_SKPNEI(chip8_vm chip8[static 1])
  */
 void chip8_SKPE(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     if (chip8->regs[chip8_regx] == chip8->regs[chip8_regy]) {
         chip8->pc += 2;
@@ -90,8 +90,8 @@ void chip8_SKPE(chip8_vm chip8[static 1])
  */
 void chip8_MOVI(chip8_vm chip8[static 1])
 {
-    chip8_byte chip8_imdt = (chip8->istr_word & 0x00FF);
-    chip8_register chip8_reg = (chip8->istr_word & 0x0F00) >> 8;
+    chip8_byte chip8_imdt = (chip8->istr & 0x00FF);
+    chip8_register chip8_reg = (chip8->istr & 0x0F00) >> 8;
 
     chip8->regs[chip8_reg] = chip8_imdt;
     chip8->pc += 2;
@@ -102,8 +102,8 @@ void chip8_MOVI(chip8_vm chip8[static 1])
  */
 void chip8_ADDI(chip8_vm chip8[static 1])
 {
-    chip8_byte chip8_imdt = (chip8->istr_word & 0x00FF);
-    chip8_register chip8_reg = (chip8->istr_word & 0x0F00) >> 8;
+    chip8_byte chip8_imdt = (chip8->istr & 0x00FF);
+    chip8_register chip8_reg = (chip8->istr & 0x0F00) >> 8;
 
     chip8->regs[chip8_reg] += chip8_imdt;
     chip8->pc += 2;
@@ -114,8 +114,8 @@ void chip8_ADDI(chip8_vm chip8[static 1])
  */
 void chip8_MOV(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     chip8->regs[chip8_regx] = chip8->regs[chip8_regy];
     chip8->pc += 2;
@@ -126,8 +126,8 @@ void chip8_MOV(chip8_vm chip8[static 1])
  */
 void chip8_OR(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     chip8->regs[chip8_regx] |= chip8->regs[chip8_regy];
     chip8->pc += 2;
@@ -138,8 +138,8 @@ void chip8_OR(chip8_vm chip8[static 1])
  */
 void chip8_AND(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     chip8->regs[chip8_regx] &= chip8->regs[chip8_regy];
     chip8->pc += 2;
@@ -150,8 +150,8 @@ void chip8_AND(chip8_vm chip8[static 1])
  */
 void chip8_XOR(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     chip8->regs[chip8_regx] ^= chip8->regs[chip8_regy];
     chip8->pc += 2;
@@ -162,10 +162,10 @@ void chip8_XOR(chip8_vm chip8[static 1])
  */
 void chip8_ADD(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
-    if ((unsigned short) chip8->regs[chip8_regx] + chip8->regs[chip8_regy] < 0xFF) {
+    if ((uint16_t) chip8->regs[chip8_regx] + chip8->regs[chip8_regy] < 0xFF) {
         chip8->regs[VF] = 0;
     } else {
         chip8->regs[VF] = 1;
@@ -179,8 +179,8 @@ void chip8_ADD(chip8_vm chip8[static 1])
  */
 void chip8_SUB(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     if (chip8->regs[chip8_regx] < chip8->regs[chip8_regy]) {
         chip8->regs[VF] = 0;
@@ -196,7 +196,7 @@ void chip8_SUB(chip8_vm chip8[static 1])
  */
 void chip8_SHFR(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
 
     chip8->regs[VF] = chip8->regs[chip8_regx] & 0x01;
     chip8->regs[chip8_regx] >>= 1;
@@ -208,8 +208,8 @@ void chip8_SHFR(chip8_vm chip8[static 1])
  */
 void chip8_SUBB(chip8_vm chip8[static 1]);
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     if (chip8->regs[chip8_regy] < chip8->regs[chip8_regx]) {
         chip8->regs[VF] = 0;
@@ -225,7 +225,7 @@ void chip8_SUBB(chip8_vm chip8[static 1]);
  */
 void chip8_SHFL(chip8_vm chip8[static 1]);
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
 
     chip8->regs[VF] = chip8->regs[chip8_regx] & 0x80;
     chip8->regs[chip8_regx] <<= 1;
@@ -237,8 +237,8 @@ void chip8_SHFL(chip8_vm chip8[static 1]);
  */
 void chip8_SKPNE(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8_register chip8_regy = (chip8->istr_word & 0x00F0) >> 4;
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8_register chip8_regy = (chip8->istr & 0x00F0) >> 4;
 
     if (chip8->regs[chip8_regx] != chip8->regs[chip8_regy]) {
         chip8->pc += 2;
@@ -251,7 +251,7 @@ void chip8_SKPNE(chip8_vm chip8[static 1])
  */
 void chip8_MIV(chip8_vm chip8[static 1])
 {
-    chip8->idx = chip8->istr_word & 0x0FFF;
+    chip8->idx = chip8->istr & 0x0FFF;
     chip8->pc += 2;
 }
 
@@ -260,7 +260,7 @@ void chip8_MIV(chip8_vm chip8[static 1])
  */
 void chip8_JMPO(chip8_vm chip8[static 1])
 {
-    chip8->pc = (chip8->istr_word & 0x0FFF) + chip8->regs[V0];
+    chip8->pc = (chip8->istr & 0x0FFF) + chip8->regs[V0];
 }
 
 /*
@@ -268,15 +268,15 @@ void chip8_JMPO(chip8_vm chip8[static 1])
  */
 void chip8_RNDMSK(chip8_vm chip8[static 1])
 {
-    chip8_register chip8_regx = (chip8->istr_word & 0x0F00) >> 8;
-    chip8->regs[chip8_regx] = (rand() % 256) & (chip8->istr_word & 0x00FF);
+    chip8_register chip8_regx = (chip8->istr & 0x0F00) >> 8;
+    chip8->regs[chip8_regx] = (rand() % 256) & (chip8->istr & 0x00FF);
 }
 
 // TODO
 /*
  * @brief Draws a sprite at coordinate (V[X], V[Y]) with width 8xN
  */
-void chip8_DRWSPT(chip8_vm chip8[static 1])
+void chip8_DRWSPT(chip8_vm chip8[static 1]);
 void chip8_SKPKEY(chip8_vm chip8[static 1]);
 void chip8_SKPNKEY(chip8_vm chip8[static 1]);
 void chip8_MOVDLY(chip8_vm chip8[static 1]);

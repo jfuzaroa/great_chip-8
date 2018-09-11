@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+
 #include "chip8.h"
 #include "chip8_istr.h"
 
