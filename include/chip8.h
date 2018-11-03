@@ -6,8 +6,8 @@
 #include <stdint.h>
 
 #define CHIP8_MEM_SIZE 4096
-#define CHIP8_DISP_RES_WIDTH 64
-#define CHIP8_DISP_RES_HEIGHT 32
+#define CHIP8_GFX_RES_WIDTH 64
+#define CHIP8_GFX_RES_HEIGHT 32
 #define CHIP8_KEY_SIZE 16
 
 typedef uint8_t chip8_byte;
@@ -35,7 +35,7 @@ typedef struct chip8_virtual_machine {
 
 	chip8_byte regs[REG_BANK_SIZE]; /* register unit array */
 	chip8_byte mem[CHIP8_MEM_SIZE];
-	chip8_byte gfx[CHIP8_DISP_RES_WIDTH][CHIP8_DISP_RES_HEIGHT]; /* pixel array */
+	chip8_byte gfx[CHIP8_GFX_RES_HEIGHT][CHIP8_GFX_RES_WIDTH]; /* pixel array */
 	chip8_byte keys[CHIP8_KEY_SIZE];
 
 	chip8_byte dly_tmr; /* used for timing events */
@@ -43,8 +43,8 @@ typedef struct chip8_virtual_machine {
 } chip8_vm;
 
 typedef enum chip8_return_code {
-	CHIP8_SUCCESS,
-	CHIP8_FAILURE
+	CHIP8_FAILURE,
+	CHIP8_SUCCESS
 } chip8_rc; 
 
 /*

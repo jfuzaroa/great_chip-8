@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include <GLFW/glfw3.h>
+
 #include "chip8.h"
 #include "chip8_istr.h"
 
@@ -49,67 +51,6 @@ static chip8_word chip8_fetch(chip8_vm chip8[static 1])
 	return istr;
 }
 
-static chip8_opcode chip8_disassemble(chip8_word istr_word)
-{
-	chip8_byte lend = (istr_word & 0x00FF);  /* little end */
-	chip8_byte bend = (istr_word & 0xFF00) >> 8;  /* big end */
-
-	switch (bend & 0xF0) {
-		case 0x00: {
-			switch(lend) {
-				case 0xE0: return CLS;
-				case 0xEE: return RTS;
-				default: return RCA;
-			}
-		}
-		case 0x10: return JMP;
-		case 0x20: return CALL;
-		case 0x30: return SKPEI;
-		case 0x40: return SKPNEI;
-		case 0x50: return SKPE;
-		case 0x60: return MOVI;
-		case 0x70: return ADDI;
-		case 0x80: {
-			switch(lend & 0x0F) {
-				case 0x00: return MOV;
-				case 0x01: return OR;
-				case 0x02: return AND;
-				case 0x03: return XOR;
-				case 0x04: return ADD;
-				case 0x05: return SUB;
-				case 0x06: return SHFR;
-				case 0x07: return SUBB;
-				case 0x0E: return SHFL;
-			}
-		}
-		case 0x90: return SKPNE;
-		case 0xA0: return MIV;
-		case 0xB0: return JMPO;
-		case 0xC0: return RNDMSK;
-		case 0xD0: return DRWSPT;
-		case 0xE0: {
-			switch(lend) {
-				case 0x9E: return SKPKEY;
-				case 0xA1: return SKPNKEY;
-			}
-		}
-		case 0xF0: {
-			switch(lend) {
-				case 0x07: return MOVDLY;
-				case 0x0A: return WTKEY;
-				case 0x15: return SETDLY;
-				case 0x18: return SETSND;
-				case 0x1E: return IADD;
-				case 0x29: return ISETSPT;
-				case 0x33: return IBCD;
-				case 0x55: return REGDMP;
-				case 0x65: return REGLD;
-			}
-		}
-	}
-	return NOP;
-}
-
 static chip8_rc chip8_execute(chip8_vm chip8[static 1])
 {
 	chip8_opcode opcode = chip8_disassemble(chip8->istr);
@@ -125,19 +66,23 @@ int main(int argc, char* argv[argc+1])
 {
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
-	srand(time(NULL));
+	GLFWwindow* chip8_window;
+	srand((unsigned) (time(NULL));
 
 	if (!argv[1]) {
 		puts("great-chip-8: missing file operand\n\
 				Try 'great-chip-8 -h' for help");
 		return EXIT_FAILURE;
 	} else if (!chip8_load(chip8, argv[1])) {
-		perror("Chip-8 game load failed:");
+		perror("great_chip-8: failed to load game");
 		return EXIT_FAILURE;
 	}
 
+	/* intialize graphics and create window */
+	chip8_gfx_init(chip8, chip8_window);
+
 	/* fetch, decode, execute */
-	while (true) {
+	while (!glfwWindowShouldClose(chip8_window)) {
 		chip8->istr = chip8_fetch(chip8);
 		if (chip8_execute(chip8)) {
 			return CHIP8_SUCCESS;
