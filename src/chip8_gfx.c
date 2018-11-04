@@ -49,6 +49,5 @@ chip8_rc chip8_gfx_init(chip8_vm chip8[static 1], GLFWwindow window[static 1])
 OPENGL_INIT_ERROR:
 	glfwDestroyWindow(window);
 	glfwTerminate();
-	fputs("great_chip-8: OpenGL initialization failed\n", stderr);
 	return CHIP8_FAILURE;
 }

@@ -43,8 +43,8 @@ typedef struct chip8_virtual_machine {
 } chip8_vm;
 
 typedef enum chip8_return_code {
-	CHIP8_FAILURE,
-	CHIP8_SUCCESS
+	CHIP8_SUCCESS,
+	CHIP8_FAILURE
 } chip8_rc; 
 
 /*

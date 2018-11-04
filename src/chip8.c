@@ -79,7 +79,10 @@ int main(int argc, char* argv[argc+1])
 	}
 
 	/* intialize graphics and create window */
-	chip8_gfx_init(chip8, chip8_window);
+	if (!chip8_gfx_init(chip8, chip8_window)) {
+		fputs("great_chip-8: OpenGL initialization failed\n", stderr);
+		return EXIT_FAILURE;
+	}
 
 	/* fetch, decode, execute */
 	while (!glfwWindowShouldClose(chip8_window)) {
