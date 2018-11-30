@@ -13,7 +13,7 @@ void chip8_glfw_error(int error, const char* description)
 	fputc('\n', stderr);
 }
 
-chip8_rc chip8_gfx_init(chip8_vm chip8[static 1], GLFWwindow window[static 1])
+chip8_rc chip8_gfx_init(chip8_vm chip8[static 1], GLFWwindow* window)
 {
 	glfwSetErrorCallback(chip8_glfw_error);
 

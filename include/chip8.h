@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include <GLFW/glfw3.h>
+
 #define CHIP8_MEM_SIZE 4096
 #define CHIP8_GFX_RES_WIDTH 64
 #define CHIP8_GFX_RES_HEIGHT 32
@@ -16,13 +18,13 @@ typedef uint16_t chip8_word;
 /*
  * @brief contains register bank indices for register array
  */
-enum chip8_register {
+typedef enum chip8_register {
 	V0, V1, V2, V3,
 	V4, V5, V6, V7,
 	V8, V9, VA, VB,
 	VC, VD, VE, VF,
 	REG_BANK_SIZE
-};
+} chip8_reg;
 
 /* 
  * @brief chip8 virtual machine structure
@@ -45,7 +47,9 @@ typedef struct chip8_virtual_machine {
 typedef enum chip8_return_code {
 	CHIP8_SUCCESS,
 	CHIP8_FAILURE
-} chip8_rc; 
+} chip8_rc;
+
+chip8_gfx_init(chip8_vm[static 1], GLFWwindow*);
 
 /*
  * @brief chip8_vm constructor
@@ -60,7 +64,9 @@ inline chip8_vm* chip8_new(void)
  */
 inline void chip8_destroy(chip8_vm chip8[static 1])
 {
-	if (chip8) { *chip8 = (chip8_vm) { 0 }; }
+	if (chip8) {
+		*chip8 = (chip8_vm) { 0 };
+	}
 }
 
 /*

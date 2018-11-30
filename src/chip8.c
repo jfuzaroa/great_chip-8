@@ -67,7 +67,7 @@ int main(int argc, char* argv[argc+1])
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
 	GLFWwindow* chip8_window;
-	srand((unsigned) (time(NULL));
+	srand((unsigned) (time(NULL)));
 
 	if (!argv[1]) {
 		puts("great-chip-8: missing file operand\n\

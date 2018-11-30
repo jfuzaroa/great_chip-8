@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "chip8_istr.h"
 
 typedef enum chip8_opcode {
 	NOP = -1,
@@ -19,6 +18,42 @@ typedef enum chip8_opcode {
 } chip8_opcode ;
 
 typedef void chip8_instruction(chip8_vm[static 1]);
+
+chip8_instruction chip8_RCA;
+chip8_instruction chip8_CLS;
+chip8_instruction chip8_RET;
+chip8_instruction chip8_JMP;
+chip8_instruction chip8_CALL;
+chip8_instruction chip8_SKPEI;
+chip8_instruction chip8_SKPNEI;
+chip8_instruction chip8_SKPE;
+chip8_instruction chip8_MOVI;
+chip8_instruction chip8_ADDI;
+chip8_instruction chip8_MOV;
+chip8_instruction chip8_OR;
+chip8_instruction chip8_AND;
+chip8_instruction chip8_XOR;
+chip8_instruction chip8_ADD;
+chip8_instruction chip8_SUB;
+chip8_instruction chip8_SHFR;
+chip8_instruction chip8_SUBB;
+chip8_instruction chip8_SHFL;
+chip8_instruction chip8_SKPNE;
+chip8_instruction chip8_MIV;
+chip8_instruction chip8_JMPO;
+chip8_instruction chip8_RNDMSK;
+chip8_instruction chip8_DRWSPT;
+chip8_instruction chip8_SKPKEY;
+chip8_instruction chip8_SKPNKEY;
+chip8_instruction chip8_MOVDLY;
+chip8_instruction chip8_WTKEY;
+chip8_instruction chip8_SETDLY;
+chip8_instruction chip8_SETSND;
+chip8_instruction chip8_IADD;
+chip8_instruction chip8_ISETSPT;
+chip8_instruction chip8_IBCD;
+chip8_instruction chip8_REGDMP;
+chip8_instruction chip8_REGLD;
 
 chip8_instruction* const chip8_instruction_set[CHIP8_ISTR_SET_SIZE] = {
 	[RCA]		= chip8_RCA,
