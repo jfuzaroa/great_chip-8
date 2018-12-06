@@ -6,10 +6,13 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 find_package(glfw3 3.2 REQUIRED)
 
 include_directories(include)
-include_directories(${OPENGL_INCLUDE_DIR})
+include_directories(${OPENGL_INCLUDE_DIRS})
+
+link_libraries(GLEW glfw)
 
 file(GLOB SOURCES "src/*.c")
 

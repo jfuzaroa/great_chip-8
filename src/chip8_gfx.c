@@ -27,7 +27,7 @@ chip8_rc chip8_gfx_init(chip8_vm chip8[static 1], GLFWwindow* window)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__ /* required for macOS */
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE) 
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE)
 #endif
 
 	window = glfwCreateWindow(800, 400, "great_chip-8", NULL, NULL);

@@ -1,9 +1,10 @@
 CC		= clang
 CFLAGS	= -g -std=c11 -Iinclude $(WFLAGS) $(OPFLAGS)
-WFLAGS	= -Wall -Wextra -Wpedantic -Wformat=2 -Wunused-parameter -Wshadow \
+WFLAGS	= -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow \
 		  -Wwrite-strings -Wstrict-prototypes -Wredundant-decls \
-		  -Wnested-externs -Wmissing-include-dirs -Werror
-# OPFLAGS =
+		  -Wnested-externs -Wmissing-include-dirs
+LDFLAGS = -lGLEW -lglfw
+# OPFLAGS = 
 RLFLAGS	= -march=native -O2 -pipe
 
 ifeq ($(CC), gcc)
@@ -22,7 +23,7 @@ all: $(SRCS) $(HDRS) $(TRGT)
 release: CFLAGS=$(RLFLAGS) all
 
 $(TRGT): build $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@
 
 build:
 	@mkdir build bin

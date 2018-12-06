@@ -66,19 +66,19 @@ int main(int argc, char* argv[argc+1])
 {
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
-	GLFWwindow* chip8_window;
+	GLFWwindow* chip8_window = (void*) 0;
 	srand((unsigned) (time(NULL)));
 
 	if (!argv[1]) {
-		puts("great-chip-8: missing file operand\n\
-				Try 'great-chip-8 -h' for help");
+		puts("great-chip-8: missing file operand\n"
+				"Try 'great-chip-8 -h' for help");
 		return EXIT_FAILURE;
 	} else if (!chip8_load(chip8, argv[1])) {
-		perror("great_chip-8: failed to load game");
+		perror("great_chip-8: failed to load ROM");
 		return EXIT_FAILURE;
 	}
 
-	/* intialize graphics and create window */
+	/* initialize graphics and create window */
 	if (!chip8_gfx_init(chip8, chip8_window)) {
 		fputs("great_chip-8: OpenGL initialization failed\n", stderr);
 		return EXIT_FAILURE;

@@ -49,7 +49,7 @@ typedef enum chip8_return_code {
 	CHIP8_FAILURE
 } chip8_rc;
 
-chip8_gfx_init(chip8_vm[static 1], GLFWwindow*);
+chip8_rc chip8_gfx_init(chip8_vm[static 1], GLFWwindow*);
 
 /*
  * @brief chip8_vm constructor
