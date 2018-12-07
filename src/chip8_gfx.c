@@ -6,19 +6,21 @@
 
 #include "chip8.h"
 
+extern chip8_byte chip8_font[];
+
 void chip8_glfw_error(int error, const char* description)
 {
-	fputs("great_chip-8: GLFW error\n", stderr);
-	fputs(description, stderr);
+	CHIP8_FPUTS(stderr, "ERROR::GLFW::");
+	fprintf(stderr, "%s", description);
 	fputc('\n', stderr);
 }
 
-chip8_rc chip8_gfx_init(chip8_vm chip8[static 1], GLFWwindow* window)
+chip8_rc chip8_gfx_init(GLFWwindow* window)
 {
 	glfwSetErrorCallback(chip8_glfw_error);
 
 	if (!glfwInit()) {
-		fputs("great_chip-8: GLFW initialization failed\n", stderr);
+		CHIP8_FPUTS(stderr, "ERROR::GLFW: Initialization failed");
 		goto OPENGL_INIT_ERROR;
 	}
 
@@ -32,7 +34,7 @@ chip8_rc chip8_gfx_init(chip8_vm chip8[static 1], GLFWwindow* window)
 
 	window = glfwCreateWindow(800, 400, "great_chip-8", NULL, NULL);
 	if (!window) {
-		fputs("great_chip-8: GLFW window creation failed\n", stderr);
+		CHIP8_FPUTS(stderr, "ERROR::GLFW: Window creation failed");
 		goto OPENGL_INIT_ERROR;
 	}
 
@@ -40,7 +42,7 @@ chip8_rc chip8_gfx_init(chip8_vm chip8[static 1], GLFWwindow* window)
 	glfwSwapInterval(1); /* with a parameter of 1 this toggles vsync on */
 	glewExperimental = GL_TRUE;
 	if (GLEW_OK != glewInit()) {
-		fputs("great_chip-8: GLEW initialization failed\n", stderr);
+		CHIP8_FPUTS(stderr, "ERROR::GLEW: Initialization failed");
 		goto OPENGL_INIT_ERROR;
 	}
 

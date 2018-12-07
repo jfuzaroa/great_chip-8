@@ -1,4 +1,5 @@
 .idea
+.gdb_history
 bin
 build
 cmake-build-debug

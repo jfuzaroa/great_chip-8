@@ -1,12 +1,30 @@
+/*
+ * @file chip8_istr.c
+ * @brief Implements the chip-8 disassembler as well as opcode function definitions.
+ *
+ * This contains the chip-8 disassembler for decoding instructions into their
+ * corresponding functions. Also contained are the opcode function definitions
+ * and instruction set array with the function pointers used by the main
+ * subroutine.
+ * Function descriptions refer to variables defined by the chip-8 object
+ * structure.
+ *
+ * @author Jonathan Alencar (jonalencar)
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <GLFW/glfw3.h>
 
 #include "chip8.h"
 #include "chip8_istr.h"
 
+/*
+ * @brief Disassembles chip-8 instruction into corresponding opcode.
+ */
 chip8_opcode chip8_disassemble(chip8_word istr_word)
 {
 	chip8_byte lend = (istr_word & 0x00FF);  /* little end */
@@ -69,24 +87,24 @@ chip8_opcode chip8_disassemble(chip8_word istr_word)
 }
 
 /*
- * @brief Calls RCA 1802 program at address NNN (Not required for most ROMs)
+ * @brief Calls RCA 1802 program at address NNN (not required for most ROMs).
  */
 void chip8_RCA(chip8_vm chip8[static 1])
 {
-    fputs("great-chip-8: RCA opcode executed.\n This shouldn't happen\n",
-          stderr);
+    CHIP8_FPUTS(stderr, "ERROR: RCA opcode executed, this shouldn't happen");
 }
 
 /*
- * @brief Clears the screen
+ * @brief Clears the screen.
  */
 void chip8_CLS(chip8_vm chip8[static 1])
 {
-	// TODO
+	memset(chip8->gfx, 0, sizeof(chip8->gfx));
+	chip8->pc += 2;
 }
 
 /*
- * @brief Pops stack to return from subroutine
+ * @brief Pops stack to return from subroutine.
  */
 void chip8_RET(chip8_vm chip8[static 1])
 {
@@ -96,7 +114,7 @@ void chip8_RET(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Jumps to address at NNN
+ * @brief Jumps to address at NNN.
  */
 void chip8_JMP(chip8_vm chip8[static 1])
 {
@@ -104,7 +122,7 @@ void chip8_JMP(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Pushes program counter to stack and calls subroutine at NNN
+ * @brief Pushes program counter to stack and calls subroutine at NNN.
  */
 void chip8_CALL(chip8_vm chip8[static 1])
 {
@@ -115,33 +133,35 @@ void chip8_CALL(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Skips next instruction if register V[X] equals NN
+ * @brief Skips next instruction if register V[X] equals NN.
  */
 void chip8_SKPEI(chip8_vm chip8[static 1])
 {
-    chip8_reg reg = (chip8->istr & 0x0F00) >> 8;
+    chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-    if (chip8->regs[reg] == (chip8->istr & 0x00FF)) {
-        chip8->pc += 2;
-    }
-    chip8->pc += 2;
+    if (chip8->regs[regx] == (chip8->istr & 0x00FF)) {
+        chip8->pc += 4;
+    } else {
+		chip8->pc += 2;
+	}
 }
 
 /*
- * @brief Skips next instruction if register V[X] does not equal NN
+ * @brief Skips next instruction if register V[X] does not equal NN.
  */
 void chip8_SKPNEI(chip8_vm chip8[static 1])
 {
-    chip8_reg reg = (chip8->istr & 0x0F00) >> 8;
+    chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-    if (chip8->regs[reg] != (chip8->istr & 0x00FF)) {
-        chip8->pc += 2;
-    }
-    chip8->pc += 2;
+    if (chip8->regs[regx] != (chip8->istr & 0x00FF)) {
+        chip8->pc += 4;
+    } else {
+		chip8->pc += 2;
+	}
 }
 
 /*
- * @brief Skips next instruction if register V[X] equals V[Y]
+ * @brief Skips next instruction if register V[X] equals V[Y].
  */
 void chip8_SKPE(chip8_vm chip8[static 1])
 {
@@ -149,13 +169,14 @@ void chip8_SKPE(chip8_vm chip8[static 1])
     chip8_reg regy = (chip8->istr & 0x00F0) >> 4;
 
     if (chip8->regs[regx] == chip8->regs[regy]) {
-        chip8->pc += 2;
-    }
-    chip8->pc += 2;
+        chip8->pc += 4;
+    } else {
+		chip8->pc += 2;
+	}
 }
 
 /*
- * @brief Sets V[X] to NN
+ * @brief Sets V[X] to NN.
  */
 void chip8_MOVI(chip8_vm chip8[static 1])
 {
@@ -167,7 +188,7 @@ void chip8_MOVI(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Adds NN to V[X]
+ * @brief Adds NN to V[X].
  */
 void chip8_ADDI(chip8_vm chip8[static 1])
 {
@@ -179,7 +200,7 @@ void chip8_ADDI(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Sets V[X] to value of V[Y]
+ * @brief Sets V[X] to value of V[Y].
  */
 void chip8_MOV(chip8_vm chip8[static 1])
 {
@@ -191,7 +212,7 @@ void chip8_MOV(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Sets V[X] to V[X] OR V[Y]
+ * @brief Sets V[X] to V[X] OR V[Y].
  */
 void chip8_OR(chip8_vm chip8[static 1])
 {
@@ -203,7 +224,7 @@ void chip8_OR(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Sets V[X] to V[X] AND V[Y]
+ * @brief Sets V[X] to V[X] AND V[Y].
  */
 void chip8_AND(chip8_vm chip8[static 1])
 {
@@ -215,7 +236,7 @@ void chip8_AND(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Sets V[X] to V[X] XOR V[Y]
+ * @brief Sets V[X] to V[X] XOR V[Y].
  */
 void chip8_XOR(chip8_vm chip8[static 1])
 {
@@ -227,7 +248,7 @@ void chip8_XOR(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Adds V[Y] to V[X] and sets V[F] to 0 or 1 if a carry occurs
+ * @brief Adds V[Y] to V[X] and sets V[F] to 0 or 1 if a carry occurs.
  */
 void chip8_ADD(chip8_vm chip8[static 1])
 {
@@ -244,7 +265,7 @@ void chip8_ADD(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Subtracts V[Y] from V[X] and sets V[F] to 1 or 0 if a borrow occurs
+ * @brief Subtracts V[Y] from V[X] and sets V[F] to 1 or 0 if a borrow occurs.
  */
 void chip8_SUB(chip8_vm chip8[static 1])
 {
@@ -261,7 +282,7 @@ void chip8_SUB(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Sets V[F] to the LSB of V[X] and shifts V[X] to the right by 1
+ * @brief Sets V[F] to the LSB of V[X] and shifts V[X] to the right by 1.
  */
 void chip8_SHFR(chip8_vm chip8[static 1])
 {
@@ -273,7 +294,7 @@ void chip8_SHFR(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Subtracts V[X] from V[Y] and sets V[F] to 1 or to 0 if a borrow occurs
+ * @brief Subtracts V[X] from V[Y] and sets V[F] to 1 or to 0 if a borrow occurs.
  */
 void chip8_SUBB(chip8_vm chip8[static 1])
 {
@@ -290,7 +311,7 @@ void chip8_SUBB(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Sets V[F] to the MSB of V[X] and shifts V[X] to the left by 1
+ * @brief Sets V[F] to the MSB of V[X] and shifts V[X] to the left by 1.
  */
 void chip8_SHFL(chip8_vm chip8[static 1])
 {
@@ -302,7 +323,7 @@ void chip8_SHFL(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Skips next instruction if V[X] does not equal V[Y]
+ * @brief Skips next instruction if V[X] does not equal V[Y].
  */
 void chip8_SKPNE(chip8_vm chip8[static 1])
 {
@@ -310,13 +331,14 @@ void chip8_SKPNE(chip8_vm chip8[static 1])
     chip8_reg regy = (chip8->istr & 0x00F0) >> 4;
 
     if (chip8->regs[regx] != chip8->regs[regy]) {
-        chip8->pc += 2;
-    }
-    chip8->pc += 2;
+        chip8->pc += 4;
+    } else {
+		chip8->pc += 2;
+	}
 }
 
 /*
- * @brief Sets I to the address NNN
+ * @brief Sets I to the address NNN.
  */
 void chip8_MIV(chip8_vm chip8[static 1])
 {
@@ -325,7 +347,7 @@ void chip8_MIV(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Jumps to address NNN plus V[0]
+ * @brief Jumps to address NNN plus V[0].
  */
 void chip8_JMPO(chip8_vm chip8[static 1])
 {
@@ -333,16 +355,17 @@ void chip8_JMPO(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Sets V[X] equal to a bitwise AND between a random number and NN
+ * @brief Sets V[X] equal to a bitwise AND between a random number and NN.
  */
 void chip8_RNDMSK(chip8_vm chip8[static 1])
 {
     chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
     chip8->regs[regx] = (rand() % 256) & (chip8->istr & 0x00FF);
+	chip8->pc += 2;
 }
 
 /*
- * @brief Draws a sprite at coordinate (V[X], V[Y]) with width 8xN
+ * @brief Draws a sprite at coordinate (V[X], V[Y]) with dimensions 8xN.
  */
 void chip8_DRWSPT(chip8_vm chip8[static 1])
 {
@@ -354,7 +377,7 @@ void chip8_DRWSPT(chip8_vm chip8[static 1])
 	for (chip8_byte bit_row, i = 0; i < spt_hgt; i++) {
 		bit_row = chip8->mem[chip8->idx+i];
 		for (chip8_byte j = 0; j < 8; j++) {
-			if (bit_row >> (7-j)) {
+			if ((bit_row << (7-j)) >> 7) {
 				if (chip8->gfx[regx+i][regy+j]) {
 					chip8->regs[VF] = 1;
 				}
@@ -366,22 +389,35 @@ void chip8_DRWSPT(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Skips next instruction if key stored in V[X] is pressed
+ * @brief Skips next instruction if key stored in V[X] is pressed.
  */
 void chip8_SKPKEY(chip8_vm chip8[static 1])
 {
-	// TODO
-}
-/*
- * @brief Skips next instruction if key stored in V[X] is not pressed
- */
-void chip8_SKPNKEY(chip8_vm chip8[static 1])
-{
-	// TODO
+	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
+	if (chip8->keys[regx]) {
+		chip8->pc += 4;
+	} else {
+		chip8->pc += 2;
+	}
 }
 
 /*
- * @brief Sets V[X] to the value of the delay timer
+ * @brief Skips next instruction if key stored in V[X] is not pressed.
+ */
+void chip8_SKPNKEY(chip8_vm chip8[static 1])
+{
+	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
+	if (!chip8->keys[regx]) {
+		chip8->pc += 4;
+	} else {
+		chip8->pc += 2;
+	}
+}
+
+/*
+ * @brief Sets V[X] to the value of the delay timer.
  */
 void chip8_MOVDLY(chip8_vm chip8[static 1])
 {
@@ -391,70 +427,94 @@ void chip8_MOVDLY(chip8_vm chip8[static 1])
 }
 
 /*
- * @brief Halts all instructions and stores next key press in V[X]
+ * @brief Halts all instructions and stores next key press in V[X].
  */
 void chip8_WTKEY(chip8_vm chip8[static 1])
 {
-	// TODO
+	/* TODO */
 }
 
 /*
- * @brief Sets delay timer to V[X]
+ * @brief Sets delay timer to V[X].
  */
 void chip8_SETDLY(chip8_vm chip8[static 1])
 {
 	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
 	chip8->dly_tmr = chip8->regs[regx];
+	chip8->pc += 2;
 }
 
 /*
- * @brief Sets sound timer to V[X]
+ * @brief Sets sound timer to V[X].
  */
 void chip8_SETSND(chip8_vm chip8[static 1])
 {
 	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
 	chip8->snd_tmr = chip8->regs[regx];
+	chip8->pc += 2;
 }
 
 /*
- * @brief Adds V[X] to I
+ * @brief Adds V[X] to I.
  */
 void chip8_IADD(chip8_vm chip8[static 1])
 {
 	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
 	chip8->idx += regx;
+	chip8->pc += 2;
 }
 
 /*
- * @brief Sets index register to the location of the sprite located at V[X]
+ * @brief Sets index register to the location of the sprite character in V[X].
  */
 void chip8_ISETSPT(chip8_vm chip8[static 1])
 {
-	// TODO
+	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
+	chip8->idx = regx * 5;
+	chip8->pc += 2;
 }
 
 /*
- * @brief Stores the BCD representation of V[X] in memory starting at the index
+ * @brief Stores the BCD representation of V[X] in memory starting at the index.
  */
 void chip8_IBCD(chip8_vm chip8[static 1])
 {
-	// TODO
+	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
+	chip8->mem[chip8->idx+0] = regx / 100;
+	chip8->mem[chip8->idx+1] = regx / 10;
+	chip8->mem[chip8->idx+2] = regx;
+	chip8->pc += 2;
 }
 
 /*
- * @brief Stores V[0] to V[X] in memory starting at the index
+ * @brief Stores V[0] to V[X] in memory starting at the index.
  */
 void chip8_REGDMP(chip8_vm chip8[static 1])
 {
-	// TODO
+	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
+	for(; regx >= 0; regx--) {
+		chip8->mem[chip8->idx+regx] = chip8->regs[regx];
+	}
+	chip8->pc += 2;
 }
 
 /*
- * @brief Fills V[0] to V[X] with values from memory starting at the index
+ * @brief Fills V[0] to V[X] with values from memory starting at the index.
  */
 void chip8_REGLD(chip8_vm chip8[static 1])
 {
-	// TODO
+	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+
+	for(; regx >= 0; regx--) {
+		chip8->regs[regx] = chip8->mem[chip8->idx+regx];
+	}
+	chip8->pc += 2;
 }
 
 chip8_instruction* chip8_instruction_set[CHIP8_ISTR_SET_SIZE] = {
