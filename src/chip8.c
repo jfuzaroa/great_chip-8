@@ -9,8 +9,6 @@
 #include "chip8.h"
 #include "chip8_istr.h"
 
-chip8_vm* chip8_new(void);
-void chip8_destroy(chip8_vm[static 1]);
 int chip8_read(chip8_vm[static 1], size_t const, FILE* const);
 int chip8_font_read(chip8_vm[static 1], size_t const, FILE* const);
 
@@ -70,7 +68,7 @@ ERROR:
 }
 
 /*
- * @brief Fetch next instruction from loaded chip-8 file.
+ * @brief Fetch next instruction from loaded chip-8 ROM.
  */
 static chip8_word chip8_fetch(chip8_vm chip8[static 1])
 {
@@ -98,7 +96,7 @@ int main(int argc, char* argv[argc+1])
 {
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
-	GLFWwindow* chip8_window = (void*) 0;
+	GLFWwindow* chip8_window;
 	srand((unsigned) (time(NULL)));
 
 	if (!argv[1]) {

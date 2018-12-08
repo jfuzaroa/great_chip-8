@@ -63,22 +63,6 @@ typedef enum chip8_return_code {
 chip8_rc chip8_gfx_init(GLFWwindow*);
 
 /*
- * @brief Allocates memory for new chip-8 object.
- */
-inline chip8_vm* chip8_new(void)
-{
-	return calloc(1, sizeof(chip8_vm));
-}
-
-/*
- * @brief Destroys existing chip-8 object.
- */
-inline void chip8_destroy(chip8_vm chip8[static 1])
-{
-	if (chip8) { *chip8 = (chip8_vm) { 0 }; }
-}
-
-/*
  * @brief Read file contents into the chip-8 object's memory.
  */
 inline int chip8_read(chip8_vm chip8[static 1], size_t const size,
