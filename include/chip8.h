@@ -61,6 +61,7 @@ typedef enum chip8_return_code {
 } chip8_rc;
 
 chip8_rc chip8_gfx_init(GLFWwindow*);
+chip8_rc chip8_process_input(GLFWwindow*);
 
 /*
  * @brief Read file contents into the chip-8 object's memory.

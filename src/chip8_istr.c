@@ -431,7 +431,13 @@ void chip8_MOVDLY(chip8_vm chip8[static 1])
  */
 void chip8_WTKEY(chip8_vm chip8[static 1])
 {
-	/* TODO */
+	// TODO
+	chip8_word key_mask;
+	chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+	
+	for (int i = 0; i < 16; i++) {
+		key_mask |= chip8->keys[i] << i;
+	}
 }
 
 /*
