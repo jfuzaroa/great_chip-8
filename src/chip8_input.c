@@ -14,3 +14,15 @@
  *	   +-+-+-+-+			+-+-+-+-+
  */
 
+void chip8_process_input (chip8_vm* chip8, GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+	if (glfwGetKey(window, GLFW_GET_KEY) == GLFW_PRESS) {}
+}
