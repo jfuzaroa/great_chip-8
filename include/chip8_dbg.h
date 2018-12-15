@@ -10,7 +10,7 @@
 #endif
 
 /*
- * @brief Serves as a precursor functionlike macro to the actual debug macro.
+ * @brief Serves as a precursor function-like macro to the actual debug macro.
  */
 #define CHIP8_DBG_PRE(MSG, ...)										\
 do {																\

@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include <GLFW/glfw3.h>
-
 #define CHIP8_FONT_PATH "../resrc/chip8_font.c8f"
 
 #define CHIP8_MEM_SIZE 4096
@@ -14,20 +12,11 @@
 #define CHIP8_GFX_RES_HEIGHT 32
 #define CHIP8_KEY_SIZE 16
 
-#define CHIP8_PUTS(MSG) \
-	puts("great_chip-8: " MSG "")
-
-#define CHIP8_FPUTS(STRM, MSG)									\
-	fputs("great_chip-8::" MSG "\n", (FILE*) { 0 } = STRM)
-
-#define CHIP8_PERROR(ERR_MSG) \
-	perror("great_chip-8::ERROR: " ERR_MSG "")
-
 typedef uint8_t chip8_byte;
 typedef uint16_t chip8_word;
 
 /*
- * @brief Contains register bank indices for register array.
+ * @brief Register bank indices for register array.
  */
 typedef enum chip8_register {
 	V0, V1, V2, V3,
@@ -47,38 +36,31 @@ typedef struct chip8_virtual_machine {
 	chip8_word istr; /* current instruction */
 
 	chip8_byte regs[REG_BANK_SIZE]; /* register unit array */
-	chip8_byte mem[CHIP8_MEM_SIZE];
+	chip8_byte mem[CHIP8_MEM_SIZE]; /* memory array */
 	chip8_byte gfx[CHIP8_GFX_RES_HEIGHT][CHIP8_GFX_RES_WIDTH]; /* pixel array */
-	chip8_byte keys[CHIP8_KEY_SIZE];
+	chip8_byte keys[CHIP8_KEY_SIZE]; /* input keys array */
 
 	chip8_byte dly_tmr; /* used for timing events */
 	chip8_byte snd_tmr; /* used for sound effects */
 } chip8_vm;
 
+/*
+ * @brief Return codes for chip-8 functions.
+ */
 typedef enum chip8_return_code {
 	CHIP8_SUCCESS,
 	CHIP8_FAILURE
 } chip8_rc;
 
-chip8_rc chip8_gfx_init(GLFWwindow*);
-chip8_rc chip8_process_input(GLFWwindow*);
-
 /*
- * @brief Read file contents into the chip-8 object's memory.
+ * @brief Fetch next instruction from loaded chip-8 ROM.
  */
-inline int chip8_read(chip8_vm chip8[static 1], size_t const size,
-		FILE* const chip8_f)
+inline chip8_word chip8_fetch(chip8_vm chip8[static 1])
 {
-	return size == fread(&chip8->mem[0x200], size, 1, chip8_f);
-}
-
-/*
- * @brief Read chip-8 font data into chip-8 object's memory.
- */
-inline int chip8_font_read(chip8_vm chip8[static 1], size_t const size,
-		FILE* const chip8_f)
-{
-	return size == fread(&chip8->mem[0], size, 1, chip8_f);
+	chip8_word istr = chip8->mem[chip8->pc];
+	istr <<= 8;
+	istr |= chip8->mem[chip8->pc+1];
+	return istr;
 }
 
 #endif

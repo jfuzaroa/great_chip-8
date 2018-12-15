@@ -17,9 +17,9 @@ typedef enum chip8_opcode {
 	CHIP8_ISTR_SET_SIZE
 } chip8_opcode ;
 
-typedef void chip8_instruction(chip8_vm[static 1]);
+typedef void chip8_istr(chip8_vm[static 1]);
 
-extern chip8_instruction* chip8_instruction_set[];
+extern chip8_istr* chip8_istr_set[CHIP8_ISTR_SET_SIZE];
 
 chip8_opcode chip8_disassemble(chip8_word);
 

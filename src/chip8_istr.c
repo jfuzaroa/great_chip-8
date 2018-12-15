@@ -3,23 +3,23 @@
  * @brief Implements the chip-8 disassembler as well as opcode function definitions.
  *
  * This contains the chip-8 disassembler for decoding instructions into their
- * corresponding functions. Also contained are the opcode function definitions
- * and instruction set array with the function pointers used by the main
- * subroutine.
+ * corresponding functions. This aslo contains the opcode function definitions
+ * and instruction set array with the function pointers used by the main 
+ * fetch-execute cycle.
  * Function descriptions refer to variables defined by the chip-8 object
  * structure.
  *
- * @author Jonathan Alencar (jonalencar)
+ * @author Jonathan Alencar
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-
 #include <GLFW/glfw3.h>
 
 #include "chip8.h"
+#include "chip8_io.h"
 #include "chip8_istr.h"
 
 /*
@@ -523,7 +523,7 @@ void chip8_REGLD(chip8_vm chip8[static 1])
 	chip8->pc += 2;
 }
 
-chip8_instruction* chip8_instruction_set[CHIP8_ISTR_SET_SIZE] = {
+chip8_istr* chip8_istr_set[CHIP8_ISTR_SET_SIZE] = {
 	[RCA]		= chip8_RCA,
 	[CLS]		= chip8_CLS,
 	[RET]		= chip8_RET,
@@ -560,3 +560,4 @@ chip8_instruction* chip8_instruction_set[CHIP8_ISTR_SET_SIZE] = {
 	[REGDMP]	= chip8_REGDMP,
 	[REGLD]		= chip8_REGLD
 };
+

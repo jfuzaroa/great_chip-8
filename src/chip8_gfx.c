@@ -1,12 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "chip8.h"
-
-extern chip8_byte chip8_font[];
+#include "chip8_io.h"
 
 void chip8_glfw_error(int error, const char* description)
 {
