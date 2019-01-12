@@ -5,15 +5,40 @@
 
 #include "chip8.h"
 #include "chip8_io.h"
+#include "chip8_gfx.h"
+
+chip8_rc chip8_gfx_init(GLFWwindow* window);
 
 void chip8_glfw_error(int error, const char* description)
 {
 	CHIP8_FPUTS(stderr, "ERROR::GLFW::");
-	fprintf(stderr, "%s", description);
-	fputc('\n', stderr);
+	fprintf(stderr, "%s\n", description);
 }
 
-chip8_rc chip8_gfx_init(GLFWwindow* window)
+void chip8_fb_size_callback(GLFWwindow* window, GLsizei width, GLsizei height)
+{
+	glViewport(0, 0, width, height);
+}
+
+chip8_rc chip8_shader_init(const restrict char vert_shdr_src[static 1],
+		char restrict const frag_shdr_src[static 1]) 
+{
+	FILE* const chip8_shader = fopen(vert_shdr_src, "r");
+	size_t file_size;
+	
+	if (!chip8_shader && !fseek(chip8_rom, 0, SEEK_END)) {
+		return CHIP8_FAILURE;
+	}
+
+/* TODO */
+	file_size 
+
+	static GLuint chip8_vert_shader = glCreateShader(GL_VERTEX_SHADER);
+
+/*     glShaderSource(chip8_vert_shader, 1,  */
+}
+
+chip8_rc chip8_gfx_init(GLFWwindow* window, unsigned short res_scale)
 {
 	glfwSetErrorCallback(chip8_glfw_error);
 
@@ -26,23 +51,29 @@ chip8_rc chip8_gfx_init(GLFWwindow* window)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__ /* required for macOS */
+	/* required for macOS */
+#ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE)
 #endif
 
-	window = glfwCreateWindow(800, 400, "great_chip-8", NULL, NULL);
+	window = glfwCreateWindow(CHIP8_GFX_RES_WIDTH * res_scale,
+			CHIP8_GFX_RES_HEIGHT * res_scale, "great_chip-8", NULL, NULL);
 	if (!window) {
 		CHIP8_FPUTS(stderr, "ERROR::GLFW: Window creation failed");
 		goto OPENGL_INIT_ERROR;
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1); /* with a parameter of 1 this toggles vsync on */
+	glfwSetFramebufferSizeCallback(window, chip8_fb_size_callback);
+	glfwSwapInterval(1); /* toggles v-sync on */
+
 	glewExperimental = GL_TRUE;
 	if (GLEW_OK != glewInit()) {
 		CHIP8_FPUTS(stderr, "ERROR::GLEW: Initialization failed");
 		goto OPENGL_INIT_ERROR;
 	}
+
+	chip8_shader_init(CHIP8_VERT_SHADER_SRC, CHIP8_FRAG_SHADER_SRC);
 
 	return CHIP8_SUCCESS;
 

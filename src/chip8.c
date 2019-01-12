@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <getopt.h>
 
 #include "chip8.h"
 #include "chip8_io.h"
@@ -29,14 +30,14 @@ int main(int argc, char* argv[argc+1])
 {
 	size_t rom_index = 1;
 	size_t flag_index = 2;
-	static chip8_vm chip8_obj;
-	static chip8_vm* const chip8 = &chip8_obj;
-	static GLFWwindow* chip8_window;
+	chip8_vm chip8_obj;
+	chip8_vm* const chip8 = &chip8_obj;
+	GLFWwindow* chip8_window;
 	srand((unsigned) (time(NULL)));
 
 	if (!(argc >= 2)) {
 		CHIP8_PUTS("Missing ROM file\n"
-				"Try 'great_chip-8 --help' for help");
+				"Try 'great_chip-8 --help' for help.");
 		return EXIT_SUCCESS;
 	} else if ('-' == argv[1][0]) {
 		if (!strcmp(argv[1], "--help")) {

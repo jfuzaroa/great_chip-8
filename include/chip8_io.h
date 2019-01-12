@@ -10,17 +10,16 @@
 #define CHIP8_PUTS(MSG) \
 	puts("great_chip-8: " MSG "")
 
-#define CHIP8_FPUTS(STRM, MSG)									\
+#define CHIP8_FPUTS(STRM, MSG) \
 	fputs("great_chip-8::" MSG "\n", (FILE*) { 0 } = STRM)
 
 #define CHIP8_PERROR(ERR_MSG) \
-	perror("great_chip-8::ERROR: " ERR_MSG "")
+	perror("great_chip-8::PERROR: " ERR_MSG "")
 
 extern chip8_key_map[CHIP8_KEY_SIZE];
 
 chip8_rc chip8_load(chip8_vm[static 1], char const[static 1]);
 chip8_rc chip8_font_load(chip8_vm[static 1]);
-chip8_rc chip8_gfx_init(GLFWwindow*);
 
 /*
  * @brief Read file contents into the chip-8 object's memory.
@@ -38,6 +37,11 @@ inline bool chip8_font_read(chip8_vm chip8[static 1], size_t const size,
 		FILE* const chip8_f)
 {
 	return size == fread(&chip8->mem[0], size, 1, chip8_f);
+}
+
+inline size_t chip8_measure_file(FILE* const chip8_f)
+{
+
 }
 
 /*
