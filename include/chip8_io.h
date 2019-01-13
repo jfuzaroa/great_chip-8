@@ -1,5 +1,5 @@
-#ifndef CHIP8_IO
-#define CHIP8_IO
+#ifndef CHIP8_IO_H
+#define CHIP8_IO_H
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -20,29 +20,6 @@ extern chip8_key_map[CHIP8_KEY_SIZE];
 
 chip8_rc chip8_load(chip8_vm[static 1], char const[static 1]);
 chip8_rc chip8_font_load(chip8_vm[static 1]);
-
-/*
- * @brief Read file contents into the chip-8 object's memory.
- */
-inline bool chip8_read(chip8_vm chip8[static 1], size_t const size,
-		FILE* const chip8_f)
-{
-	return size == fread(&chip8->mem[0x200], size, 1, chip8_f);
-}
-
-/*
- * @brief Read chip-8 font data into chip-8 object's memory.
- */
-inline bool chip8_font_read(chip8_vm chip8[static 1], size_t const size,
-		FILE* const chip8_f)
-{
-	return size == fread(&chip8->mem[0], size, 1, chip8_f);
-}
-
-inline size_t chip8_measure_file(FILE* const chip8_f)
-{
-
-}
 
 /*
  * @brief Processes keyboard mapped keyboard input using GLFW.

@@ -35,24 +35,45 @@ int chip8_key_map[CHIP8_KEY_SIZE] = {
 	GLFW_KEY_V
 };
 
-bool chip8_read(chip8_vm[static 1], size_t const, FILE* const);
-bool chip8_font_read(chip8_vm[static 1], size_t const, FILE* const);
 void chip8_process_input(chip8_vm[static 1], GLFWwindow*);
+
+/*
+ * @brief Returns the number of bytes in a file.
+ */
+size_t chip8_measure_file(FILE* const chip8_f)
+{
+	fseek(chip8_rom, 0, SEEK_END);
+	return ftell(chip8_rom);
+}
+
+/*
+ * @brief Read file contents into the chip-8 object's memory.
+ */
+bool chip8_read(chip8_vm chip8[static 1], size_t const size,
+		FILE* const chip8_f)
+{
+	return size == fread(&chip8->mem[0x200], size, 1, chip8_f);
+}
+
+/*
+ * @brief Read chip-8 font data into chip-8 object's memory.
+ */
+bool chip8_font_read(chip8_vm chip8[static 1], size_t const size,
+		FILE* const chip8_f)
+{
+	return size == fread(&chip8->mem[0], size, 1, chip8_f);
+}
 
 /*
  * @brief Loads the chip-8 rom file into memory.
  */
-chip8_rc chip8_load(chip8_vm chip8[static 1], char const chip8_fp[static 1])
+chip8_rc chip8_load_rom(chip8_vm chip8[static 1], char const chip8_fp[static 1])
 {
 	FILE* const chip8_rom = fopen(chip8_fp, "rb");
-	size_t file_size;
+	size_t file_size = chip8_measure_file(chip8_rom);
 
-	if (!chip8_rom && !fseek(chip8_rom, 0, SEEK_END)) {
-		goto ERROR;
-	}
-
-	file_size = ftell(chip8_rom);
-	if (!fseek(chip8_rom, 0, SEEK_SET)
+	if (-1 != file_size
+			&& !fseek(chip8_rom, 0, SEEK_SET)
 			&& chip8_read(chip8, file_size, chip8_rom)
 			&& !fclose(chip8_rom)) {
 		chip8->pc = 0x200;
@@ -61,7 +82,6 @@ chip8_rc chip8_load(chip8_vm chip8[static 1], char const chip8_fp[static 1])
 		return CHIP8_SUCCESS;
 	}
 
-ERROR:
 	return CHIP8_FAILURE;
 }
 
@@ -73,22 +93,32 @@ ERROR:
  * Although there is room for a 4x5 font set, the implementation
  * utilizes only a 3x5 dimension.
  */
-chip8_rc chip8_font_load(chip8_vm chip8[static 1])
+chip8_rc chip8_load_font(chip8_vm chip8[static 1])
 {
 	FILE* const chip8_font = fopen(CHIP8_FONT_PATH, "rb");
-	size_t file_size;
+	size_t file_size = chip8_measure_file(chip8_rom);
 
-	if (!chip8_font && !fseek(chip8_font, 0, SEEK_END)) {
-		goto ERROR;
-	}
-
-	file_size = ftell(chip8_font);
-	if (!fseek(chip8_font, 0, SEEK_SET)
+	if (-1 != file_size
+			&& !fseek(chip8_font, 0, SEEK_SET)
 			&& chip8_font_read(chip8, file_size, chip8_font)
 			&& !fclose(chip8_font)) {
 		return CHIP8_SUCCESS;
 	}
 
-ERROR:
 	return CHIP8_FAILURE;
+}
+
+/*
+ * @brief Loads the shader source into a string.
+ */
+/* TODO */
+chip8_rc chip8_load_shader(const restrict char shader_path[static 1],
+		const restrict char shader_src[static 1])
+{
+	FILE* const chip8_shader = fopen(shader_path, "r");
+	size_t file_size = chip8_measure_file(chip8_shader);
+	
+	if (-1 != file_size && !fseek(chip8_shader, 0, SEEK_SET)) {
+		shader_src 
+	}
 }

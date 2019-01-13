@@ -20,19 +20,11 @@ void chip8_fb_size_callback(GLFWwindow* window, GLsizei width, GLsizei height)
 	glViewport(0, 0, width, height);
 }
 
-chip8_rc chip8_shader_init(const restrict char vert_shdr_src[static 1],
-		char restrict const frag_shdr_src[static 1]) 
-{
-	FILE* const chip8_shader = fopen(vert_shdr_src, "r");
-	size_t file_size;
-	
-	if (!chip8_shader && !fseek(chip8_rom, 0, SEEK_END)) {
-		return CHIP8_FAILURE;
-	}
-
 /* TODO */
-	file_size 
-
+chip8_rc chip8_shader_init(const restrict char vert_shader_path[static 1],
+		char restrict const frag_shader_path[static 1]) 
+{
+	char const* shader_src;
 	static GLuint chip8_vert_shader = glCreateShader(GL_VERTEX_SHADER);
 
 /*     glShaderSource(chip8_vert_shader, 1,  */
@@ -73,7 +65,7 @@ chip8_rc chip8_gfx_init(GLFWwindow* window, unsigned short res_scale)
 		goto OPENGL_INIT_ERROR;
 	}
 
-	chip8_shader_init(CHIP8_VERT_SHADER_SRC, CHIP8_FRAG_SHADER_SRC);
+	chip8_shader_init(CHIP8_VERT_SHADER_PATH, CHIP8_FRAG_SHADER_PATH);
 
 	return CHIP8_SUCCESS;
 
@@ -81,4 +73,9 @@ OPENGL_INIT_ERROR:
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return CHIP8_FAILURE;
+}
+
+chip8_rc chip8_gfx_init(GLFWwindow* window)
+{
+	return chip8_gfx_init(window, CHIP8_DEFAULT_RES_SCALE);
 }

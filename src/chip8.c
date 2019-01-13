@@ -22,6 +22,7 @@ static chip8_rc chip8_execute(chip8_vm chip8[static 1])
 	if (NOP == opcode) {
 		return CHIP8_FAILURE;
 	}
+
 	chip8_istr_set[opcode](chip8);
 	return CHIP8_SUCCESS;
 }
@@ -44,14 +45,15 @@ int main(int argc, char* argv[argc+1])
 			CHIP8_PUTS("Usage: \"great_chip-8 -[OPTIONS] [ROM]\"");
 			return EXIT_SUCCESS;
 		}
+
 		rom_index = 2;
 		flag_index = 1;
 	}
 
-	if (!chip8_load(chip8, argv[rom_index])) {
+	if (!chip8_load_rom(chip8, argv[rom_index])) {
 		CHIP8_PERROR("Failed to load ROM");
 		return EXIT_FAILURE;
-	} else if (!chip8_font_load(chip8)) {
+	} else if (!chip8_load_font(chip8)) {
 		CHIP8_PERROR("Failed to load font data");
 		return EXIT_FAILURE;
 	}
@@ -64,12 +66,13 @@ int main(int argc, char* argv[argc+1])
 
 	/* fetch-execute cycle */
 	while (!glfwWindowShouldClose(chip8_window)) {
+		chip8_process_input(chip8, chip8_window);
 		chip8->istr = chip8_fetch(chip8);
+
 		if (chip8_execute(chip8)) {
 			CHIP8_FPUTS(stderr, "ERROR: chip-8 execution failed,\
 					this shouldn't happen");
 			return EXIT_FAILURE;
 		}
-		chip8_process_input(chip8, chip8_window);
 	}
 }
