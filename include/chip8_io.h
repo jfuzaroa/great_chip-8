@@ -16,15 +16,16 @@
 #define CHIP8_PERROR(ERR_MSG) \
 	perror("great_chip-8::PERROR: " ERR_MSG "")
 
-extern chip8_key_map[CHIP8_KEY_SIZE];
+extern const int chip8_key_map[CHIP8_KEY_SIZE];
 
-chip8_rc chip8_load(chip8_vm[static 1], char const[static 1]);
-chip8_rc chip8_font_load(chip8_vm[static 1]);
+chip8_rc chip8_load_rom(chip8_vm[const static 1], const char[static 1]);
+chip8_rc chip8_load_font(chip8_vm[const static 1]);
 
 /*
  * @brief Processes keyboard mapped keyboard input using GLFW.
  */
-inline void chip8_process_input(chip8_vm chip8[static 1], GLFWwindow* window)
+inline void chip8_process_input(chip8_vm chip8[const static 1],
+		GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
@@ -32,8 +33,11 @@ inline void chip8_process_input(chip8_vm chip8[static 1], GLFWwindow* window)
 	}
 
 	for (int i = 0; i < CHIP8_KEY_SIZE; i++) {
-		chip8->keys[i] = 
-			glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS ? 1 : 0;
+		if (glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS) {
+			chip8->keys[i] = 1;
+		} else {
+			chip8->keys[i] = 0;
+		}
 	}
 }
 

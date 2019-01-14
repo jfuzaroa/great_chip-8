@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
 
 typedef enum chip8_opcode {
 	NOP = -1,
@@ -17,10 +16,10 @@ typedef enum chip8_opcode {
 	CHIP8_ISTR_SET_SIZE
 } chip8_opcode ;
 
-typedef void chip8_istr(chip8_vm[static 1]);
+typedef void chip8_istr(chip8_vm[const static 1]);
 
 extern chip8_istr* chip8_istr_set[CHIP8_ISTR_SET_SIZE];
 
-chip8_opcode chip8_disassemble(chip8_word);
+chip8_opcode chip8_disassemble(const chip8_word);
 
 #endif

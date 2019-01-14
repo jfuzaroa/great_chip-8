@@ -7,30 +7,32 @@
 #include "chip8_io.h"
 #include "chip8_gfx.h"
 
-chip8_rc chip8_gfx_init(GLFWwindow* window);
-
 void chip8_glfw_error(int error, const char* description)
 {
 	CHIP8_FPUTS(stderr, "ERROR::GLFW::");
 	fprintf(stderr, "%s\n", description);
 }
 
+/*
+ * @brief GLFW framebuffer size callback function.
+ */
 void chip8_fb_size_callback(GLFWwindow* window, GLsizei width, GLsizei height)
 {
 	glViewport(0, 0, width, height);
 }
 
 /* TODO */
-chip8_rc chip8_shader_init(const restrict char vert_shader_path[static 1],
-		char restrict const frag_shader_path[static 1]) 
+static chip8_rc chip8_shader_init(
+		char const vert_shader_path[const restrict static 1],
+		char const frag_shader_path[restrict static 1])
 {
-	char const* shader_src;
+	const char* shader_src;
 	static GLuint chip8_vert_shader = glCreateShader(GL_VERTEX_SHADER);
 
 /*     glShaderSource(chip8_vert_shader, 1,  */
 }
 
-chip8_rc chip8_gfx_init(GLFWwindow* window, unsigned short res_scale)
+chip8_rc chip8_gfx_init(GLFWwindow* window, const double scale)
 {
 	glfwSetErrorCallback(chip8_glfw_error);
 
@@ -48,8 +50,8 @@ chip8_rc chip8_gfx_init(GLFWwindow* window, unsigned short res_scale)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE)
 #endif
 
-	window = glfwCreateWindow(CHIP8_GFX_RES_WIDTH * res_scale,
-			CHIP8_GFX_RES_HEIGHT * res_scale, "great_chip-8", NULL, NULL);
+	window = glfwCreateWindow((int) (scale * CHIP8_GFX_RES_WIDTH),
+			(int) (scale * CHIP8_GFX_RES_HEIGHT), "great_chip-8", NULL, NULL);
 	if (!window) {
 		CHIP8_FPUTS(stderr, "ERROR::GLFW: Window creation failed");
 		goto OPENGL_INIT_ERROR;
@@ -73,9 +75,4 @@ OPENGL_INIT_ERROR:
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return CHIP8_FAILURE;
-}
-
-chip8_rc chip8_gfx_init(GLFWwindow* window)
-{
-	return chip8_gfx_init(window, CHIP8_DEFAULT_RES_SCALE);
 }

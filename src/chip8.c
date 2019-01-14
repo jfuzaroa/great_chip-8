@@ -7,17 +7,18 @@
 
 #include "chip8.h"
 #include "chip8_io.h"
+#include "chip8_gfx.h"
 #include "chip8_istr.h"
 #include "chip8_dbg.h"
 
-chip8_word chip8_fetch(chip8_vm chip8[static 1]);
+chip8_word chip8_fetch(chip8_vm chip8[const static 1]);
 
 /*
  * @brief Disassemble next instruction and execute with corresponding function.
  */
-static chip8_rc chip8_execute(chip8_vm chip8[static 1])
+static chip8_rc chip8_execute(chip8_vm chip8[const static 1])
 {
-	chip8_opcode opcode = chip8_disassemble(chip8->istr);
+	const chip8_opcode opcode = chip8_disassemble(chip8->istr);
 
 	if (NOP == opcode) {
 		return CHIP8_FAILURE;
@@ -34,6 +35,7 @@ int main(int argc, char* argv[argc+1])
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
 	GLFWwindow* chip8_window;
+
 	srand((unsigned) (time(NULL)));
 
 	if (!(argc >= 2)) {
@@ -50,6 +52,7 @@ int main(int argc, char* argv[argc+1])
 		flag_index = 1;
 	}
 
+	/* load rom and font data into memory */
 	if (!chip8_load_rom(chip8, argv[rom_index])) {
 		CHIP8_PERROR("Failed to load ROM");
 		return EXIT_FAILURE;
@@ -59,7 +62,7 @@ int main(int argc, char* argv[argc+1])
 	}
 
 	/* initialize graphics and create window */
-	if (!chip8_gfx_init(chip8_window)) {
+	if (!chip8_gfx_init(chip8_window, CHIP8_DEFAULT_RES_SCALE)) {
 		CHIP8_FPUTS(stderr, "ERROR: OpenGL initialization failed");
 		return EXIT_FAILURE;
 	}

@@ -55,7 +55,7 @@ typedef enum chip8_return_code {
 /*
  * @brief Fetch next instruction from loaded chip-8 ROM.
  */
-inline chip8_word chip8_fetch(chip8_vm chip8[static 1])
+inline chip8_word chip8_fetch(chip8_vm chip8[const static 1])
 {
 	chip8_word istr = chip8->mem[chip8->pc];
 	istr <<= 8;
