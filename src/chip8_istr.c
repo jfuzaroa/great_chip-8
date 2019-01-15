@@ -371,7 +371,8 @@ void chip8_DRWSPT(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 	const chip8_reg regy = (chip8->istr & 0x00F0) >> 4;
-	chip8_byte spt_hgt = chip8->istr & 0x0F;
+	const chip8_byte spt_hgt = chip8->istr & 0x0F;
+
 	chip8->regs[VF] = 0;
 
 	for (chip8_byte bit_row, i = 0; i < spt_hgt; i++) {
@@ -500,12 +501,12 @@ void chip8_IBCD(chip8_vm chip8[const static 1])
 /*
  * @brief Stores V[0] to V[X] in memory starting at the index.
  */
-void chip8_regDMP(chip8_vm chip8[const static 1])
+void chip8_REGDMP(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-	for(; regx >= 0; regx--) {
-		chip8->mem[chip8->idx+regx] = chip8->regs[regx];
+	for(unsigned short i = regx; i >= 0; i--) {
+		chip8->mem[chip8->idx+i] = chip8->regs[i];
 	}
 	chip8->pc += 2;
 }
@@ -517,8 +518,8 @@ void chip8_REGLD(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-	for(; regx >= 0; regx--) {
-		chip8->regs[regx] = chip8->mem[chip8->idx+regx];
+	for(unsigned short i = regx; i >= 0; i--) {
+		chip8->regs[i] = chip8->mem[chip8->idx+i];
 	}
 	chip8->pc += 2;
 }

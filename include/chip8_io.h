@@ -20,6 +20,8 @@ extern const int chip8_key_map[CHIP8_KEY_SIZE];
 
 chip8_rc chip8_load_rom(chip8_vm[const static 1], const char[static 1]);
 chip8_rc chip8_load_font(chip8_vm[const static 1]);
+chip8_rc chip8_load_shader(const char[const restrict static 1],
+		const char* restrict);
 
 /*
  * @brief Processes keyboard mapped keyboard input using GLFW.

@@ -47,24 +47,6 @@ long chip8_measure_file(FILE* chip8_file)
 }
 
 /*
- * @brief Read file contents into the chip-8 object's memory.
- */
-bool chip8_read(chip8_vm chip8[const static 1], const size_t size,
-		FILE* chip8_file)
-{
-	return size == fread(&chip8->mem[0x200], size, 1, chip8_file);
-}
-
-/*
- * @brief Read chip-8 font data into chip-8 object's memory.
- */
-bool chip8_font_read(chip8_vm chip8[const static 1], const size_t size,
-		FILE* chip8_file)
-{
-	return size == fread(&chip8->mem[0], size, 1, chip8_file);
-}
-
-/*
  * @brief Loads the chip-8 rom file into memory.
  */
 chip8_rc chip8_load_rom(chip8_vm chip8[const static 1],
@@ -76,8 +58,8 @@ chip8_rc chip8_load_rom(chip8_vm chip8[const static 1],
 	rewind(chip8_rom);
 
 	if (-1 != file_size
-			&& chip8_read(chip8, (size_t) file_size, chip8_rom)
-			&& !fclose(chip8_rom)) {
+	&& fread(&chip8->mem[0x200], file_size, 1, chip8_rom) == file_size
+	&& !fclose(chip8_rom)) {
 		chip8->pc = 0x200;
 		chip8->sp = 0xEA0;
 		chip8->idx = 0;
@@ -103,8 +85,8 @@ chip8_rc chip8_load_font(chip8_vm chip8[const static 1])
 	rewind(chip8_font);
 
 	if (-1 != file_size
-			&& chip8_font_read(chip8, (size_t) file_size, chip8_font)
-			&& !fclose(chip8_font)) {
+	&& fread(&chip8->mem[0], file_size, 1, chip8_font) == file_size
+	&& !fclose(chip8_font)) {
 		return CHIP8_SUCCESS;
 	}
 
@@ -112,7 +94,7 @@ chip8_rc chip8_load_font(chip8_vm chip8[const static 1])
 }
 
 /*
- * @brief Loads shader source into a string of characters.
+ * @brief Loads shader source given by file path into a string of characters.
  */
 chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
 		const char* restrict shader_src)
@@ -123,10 +105,11 @@ chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
 	rewind(chip8_shader);
 	
 	if (-1 != file_size) {
-		shader_src = calloc(1, (size_t) (file_size + 1));
+		shader_src = calloc(1, file_size + 1);
 
-		if (fread(shader_src, (size_t) file_size, 1, chip8_shader) == file_size
-				&& !fclose(chip8_shader)) {
+		if (shader_src != NULL
+		&& fread(shader_src, file_size, 1, chip8_shader) == file_size
+		&& !fclose(chip8_shader)) {
 			return CHIP8_SUCCESS;
 		}
 	}

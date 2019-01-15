@@ -14,7 +14,7 @@ typedef enum chip8_opcode {
 	SKPNKEY, MOVDLY, WTKEY, SETDLY, SETSND,
 	IADD, ISETSPT, IBCD, REGDMP, REGLD,
 	CHIP8_ISTR_SET_SIZE
-} chip8_opcode ;
+} chip8_opcode;
 
 typedef void chip8_istr(chip8_vm[const static 1]);
 

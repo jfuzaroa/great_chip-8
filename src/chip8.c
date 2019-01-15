@@ -11,7 +11,7 @@
 #include "chip8_istr.h"
 #include "chip8_dbg.h"
 
-chip8_word chip8_fetch(chip8_vm chip8[const static 1]);
+chip8_word chip8_fetch(chip8_vm[const static 1]);
 
 /*
  * @brief Disassemble next instruction and execute with corresponding function.
@@ -54,7 +54,7 @@ int main(int argc, char* argv[argc+1])
 
 	/* load rom and font data into memory */
 	if (!chip8_load_rom(chip8, argv[rom_index])) {
-		CHIP8_PERROR("Failed to load ROM");
+		CHIP8_PERROR("Failed to load Chip-8 ROM");
 		return EXIT_FAILURE;
 	} else if (!chip8_load_font(chip8)) {
 		CHIP8_PERROR("Failed to load font data");
@@ -62,7 +62,7 @@ int main(int argc, char* argv[argc+1])
 	}
 
 	/* initialize graphics and create window */
-	if (!chip8_gfx_init(chip8_window, CHIP8_DEFAULT_RES_SCALE)) {
+	if (!chip8_init_gfx(chip8_window, CHIP8_DEFAULT_RES_SCALE)) {
 		CHIP8_FPUTS(stderr, "ERROR: OpenGL initialization failed");
 		return EXIT_FAILURE;
 	}

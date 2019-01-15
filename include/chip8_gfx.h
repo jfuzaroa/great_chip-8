@@ -8,6 +8,6 @@
 
 #define CHIP8_DEFAULT_RES_SCALE 12.5
 
-chip8_rc chip8_gfx_init(GLFWwindow*, const double);
+chip8_rc chip8_init_gfx(GLFWwindow*, const double);
 
 #endif
