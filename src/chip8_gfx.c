@@ -75,7 +75,6 @@ static chip8_rc chip8_init_shader(
 		}
 		status = CHIP8_FAILURE;
 	}
-
 	free(shader_src);
 
 	if (CHIP8_SUCCESS == status) {
