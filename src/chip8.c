@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <getopt.h>
+#include <GLFW/glfw3.h>
 
 #include "chip8.h"
 #include "chip8_io.h"
@@ -34,11 +35,12 @@ int main(int argc, char* argv[argc+1])
 	size_t flag_index = 2;
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
-	GLFWwindow* chip8_window;
+	GLFWwindow* window;
+	GLuint shader_program;
 
 	srand((unsigned) (time(NULL)));
 
-	if (!(argc >= 2)) {
+	if (argc < 2) {
 		CHIP8_PUTS("Missing ROM file\n"
 				"Try 'great_chip-8 --help' for help.");
 		return EXIT_SUCCESS;
@@ -62,14 +64,14 @@ int main(int argc, char* argv[argc+1])
 	}
 
 	/* initialize graphics and create window */
-	if (!chip8_init_gfx(chip8_window, CHIP8_DEFAULT_RES_SCALE)) {
+	if (!chip8_init_gfx(window, &shader_program, CHIP8_DEFAULT_RES_SCALE)) {
 		CHIP8_FPUTS(stderr, "ERROR: OpenGL initialization failed");
 		return EXIT_FAILURE;
 	}
 
 	/* fetch-execute cycle */
-	while (!glfwWindowShouldClose(chip8_window)) {
-		chip8_process_input(chip8, chip8_window);
+	while (!glfwWindowShouldClose(window)) {
+		chip8_process_input(chip8, window);
 		chip8->istr = chip8_fetch(chip8);
 
 		if (chip8_execute(chip8)) {
@@ -77,5 +79,6 @@ int main(int argc, char* argv[argc+1])
 					this shouldn't happen");
 			return EXIT_FAILURE;
 		}
+		chip8_render_gfx(&shader_program);
 	}
 }

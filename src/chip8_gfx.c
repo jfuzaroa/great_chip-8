@@ -7,6 +7,9 @@
 #include "chip8_io.h"
 #include "chip8_gfx.h"
 
+/*
+ * @brief GLFW error callback function.
+ */
 void chip8_glfw_error(int error, const char* description)
 {
 	CHIP8_FPUTS(stderr, "ERROR::GLFW::");
@@ -16,7 +19,8 @@ void chip8_glfw_error(int error, const char* description)
 /*
  * @brief GLFW framebuffer size callback function.
  */
-void chip8_fb_size_callback(GLFWwindow* window, GLsizei width, GLsizei height)
+void chip8_fb_size_callback(GLFWwindow* window,
+		const GLsizei width, const GLsizei height)
 {
 	glViewport(0, 0, width, height);
 }
@@ -55,7 +59,7 @@ static chip8_rc chip8_compile_shader(const GLuint shader,
  * @brief Load and compile GLSL shader.
  */
 static chip8_rc chip8_init_shader(
-		const char shader_path[const restrict static 1],
+		const char shader_path[const static 1],
 		const GLenum shader_type, const GLuint program)
 {
 	const char* shader_src;
@@ -84,6 +88,9 @@ static chip8_rc chip8_init_shader(
 	return status;
 }
 
+/*
+ * @brief Link compiled shaders and create shader program.
+ */
 static chip8_rc chip8_link_gfx_program(const GLuint program)
 {
 	GLint link_status;
@@ -112,9 +119,10 @@ static chip8_rc chip8_link_gfx_program(const GLuint program)
 /*
  * @brief Initialize OpenGL context, create window, and compile shader program.
  */
-chip8_rc chip8_init_gfx(GLFWwindow* window, const double scale)
+chip8_rc chip8_init_gfx(GLFWwindow* window,
+		GLuint shader_program[const static 1], const double scale)
 {
-	GLuint chip8_gfx_program = glCreateProgram();
+	*shader_program = glCreateProgram();
 	glfwSetErrorCallback(chip8_glfw_error);
 
 	if (!glfwInit()) {
@@ -148,15 +156,15 @@ chip8_rc chip8_init_gfx(GLFWwindow* window, const double scale)
 		goto ERROR;
 	}
 
-	if (0 != chip8_gfx_program
+	if (0 != *shader_program
 	&& !chip8_init_shader(CHIP8_VERT_SHADER_PATH, GL_VERTEX_SHADER,
-			chip8_gfx_program)
+			*shader_program)
 	&& !chip8_init_shader(CHIP8_FRAG_SHADER_PATH, GL_FRAGMENT_SHADER,
-			chip8_gfx_program)) {
+			*shader_program)) {
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLSL: Initialization failed");
 	}
 
-	if (!chip8_link_gfx_program(chip8_gfx_program)) {
+	if (!chip8_link_gfx_program(*shader_program)) {
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLSL::PROGRAM:: Linking failed");
 	}
 
@@ -166,4 +174,8 @@ ERROR:
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return CHIP8_FAILURE;
+}
+
+void chip8_render_gfx(const chip8_renderer renderer[const static 1])
+{
 }
