@@ -36,9 +36,9 @@ int main(int argc, char* argv[argc+1])
 	chip8_vm chip8_obj;
 	chip8_vm* const chip8 = &chip8_obj;
 	GLFWwindow* window;
-	GLuint shader_program;
+	chip8_renderer* renderer;
 
-	srand((unsigned) (time(NULL)));
+	srand((unsigned) time(NULL));
 
 	if (argc < 2) {
 		CHIP8_PUTS("Missing ROM file\n"
@@ -64,7 +64,7 @@ int main(int argc, char* argv[argc+1])
 	}
 
 	/* initialize graphics and create window */
-	if (!chip8_init_gfx(window, &shader_program, CHIP8_DEFAULT_RES_SCALE)) {
+	if (!chip8_init_gfx(window, renderer, CHIP8_DEFAULT_RES_SCALE)) {
 		CHIP8_FPUTS(stderr, "ERROR: OpenGL initialization failed");
 		return EXIT_FAILURE;
 	}
@@ -79,6 +79,6 @@ int main(int argc, char* argv[argc+1])
 					this shouldn't happen");
 			return EXIT_FAILURE;
 		}
-		chip8_render_gfx(&shader_program);
+		chip8_render(renderer);
 	}
 }
