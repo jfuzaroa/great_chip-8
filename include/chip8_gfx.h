@@ -12,11 +12,19 @@
  * @brief Chip-8 rendering structure.
  */
 typedef struct chip8_renderer {
-	GLuint shader_program;
-	GLuint vertex_array;
+	GLdouble scale; /* resolution scalar */
+	GLdouble width; /* width dimension */
+	GLdouble height; /* height dimension */
+	GLuint shader_program; /* shader program ID */
+	GLuint vertex_array; /* vertex array ID */
+	GLint model_location; /* model matrix location */
+	GLfloat projection[4][4]; /* orthographic projection matrix */
+	GLfloat model[4][4]; /* model matrix */
+	GLfloat sprite_color[3]; /* sprite color */
 } chip8_renderer;
 
 chip8_rc chip8_init_gfx(GLFWwindow*, chip8_renderer*, const double);
-void chip8_render(const chip8_renderer[const static 1]);
+void chip8_render(const chip8_vm[const static 1],
+		const chip8_renderer[const static 1]);
 
 #endif

@@ -2,7 +2,7 @@
 
 out vec4 color;
 
-uniform vec4 sprite_color;
+uniform vec3 sprite_color;
 
 void main()
 {

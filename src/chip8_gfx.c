@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -78,6 +79,15 @@ static chip8_rc chip8_init_renderer(chip8_renderer* renderer)
 		return CHIP8_FAILURE;
 	}
 
+	renderer->model_location = glGetUniformLocation(renderer->shader_program,
+			"model");
+	renderer->projection[0][0] = 1.0f / (GLfloat) renderer->width;
+	renderer->projection[0][3] = -0.5f;
+	renderer->projection[1][1] = 1.0f / (GLfloat) renderer->height;
+	renderer->projection[1][3] = -0.5f;
+	memcpy(renderer->sprite_color, (const GLfloat[3]){1.0f, 1.0f, 1.0f},
+			sizeof(renderer->sprite_color));
+
 	return CHIP8_SUCCESS;
 }
 
@@ -154,14 +164,14 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 	GLuint vertex_buffer;
 	GLuint element_buffer;
 
-	const GLfloat vertices[] = {
-			0.0, 0.0,
-			1.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0
+	const GLfloat vertices[8] = {
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			0.0f, 1.0f,
+			1.0f, 1.0f
 	};
 
-	const GLsizei indices[] = {
+	const GLsizei indices[6] = {
 			0, 1, 2,
 			1, 2, 3
 	};
@@ -187,11 +197,16 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
 			(GLvoid*) 0);
 
-	/* unbind buffer and array objects */
+	/* unbind vertex array and set buffer for deletion */
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glDeleteBuffers(1, &vertex_buffer);
 	glDeleteBuffers(1, &element_buffer);
+
+	glUseProgram(renderer->shader_program);
+	glUniformMatrix4fv(
+			glGetUniformLocation(renderer->shader_program, "projection"),
+			1, GL_FALSE, renderer->projection);
 }
 
 /*
@@ -237,6 +252,9 @@ chip8_rc chip8_init_gfx(GLFWwindow* window, chip8_renderer* renderer,
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::RENDERER: Initialization failed");
 		goto ERROR;
 	}
+	renderer->scale = scale;
+	renderer->width = scale * CHIP8_GFX_RES_WIDTH;
+	renderer->height = scale * CHIP8_GFX_RES_HEIGHT;
 
 	if (!chip8_init_shader(CHIP8_VERT_SHADER_PATH, GL_VERTEX_SHADER,
 			renderer->shader_program)
@@ -250,17 +268,37 @@ chip8_rc chip8_init_gfx(GLFWwindow* window, chip8_renderer* renderer,
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLSL::PROGRAM:: Linking failed");
 		goto ERROR;
 	}
-
-	chip8_init_render_data();
+	chip8_init_render_data(renderer);
 	return CHIP8_SUCCESS;
 
 ERROR:
+	free(renderer);
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return CHIP8_FAILURE;
 }
 
 /* TODO */
-void chip8_render(const chip8_renderer renderer[const static 1])
+static void chip8_draw_sprite(chip8_renderer renderer[const static 1],
+		GLuint x, GLuint y)
 {
+	renderer->model[0][3] = renderer->scale * x;
+	renderer->model[1][3] = renderer->scale * y;
+	glUniformMatrix4fv(renderer->model_location, 1, GL_FALSE, renderer->model);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void *) 0);
+}
+
+void chip8_render(const chip8_vm chip8[const static 1],
+		const chip8_renderer renderer[const static 1])
+{
+	glUseProgram(renderer->shader_program);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	for (int i = 0; i < CHIP8_GFX_RES_WIDTH; i++) {
+		for (int j = 0; j < CHIP8_GFX_RES_HEIGHT; j++) {
+			if (chip8->gfx[i][j]) {
+				chip8_draw_sprite(renderer, i, j);
+			}
+		}
+	}
 }
