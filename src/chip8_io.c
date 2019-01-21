@@ -40,54 +40,35 @@ void chip8_process_input(chip8_vm[const static 1], GLFWwindow*);
 /*
  * @brief Returns the number of bytes in a file.
  */
-long chip8_measure_file(FILE* chip8_file)
+static long chip8_measure_file(const FILE chip8_file[static 1])
 {
-	fseek(chip8_file, 0, SEEK_END);
-	return ftell(chip8_file);
-}
-
-/*
- * @brief Loads the chip-8 rom file into memory.
- */
-chip8_rc chip8_load_rom(chip8_vm chip8[const static 1],
-		const char chip8_fp[static 1])
-{
-	FILE* chip8_rom = fopen(chip8_fp, "rb");
-	long file_size = chip8_measure_file(chip8_rom);
-
-	rewind(chip8_rom);
-
-	if (-1 != file_size
-	&& fread(&chip8->mem[0x200], file_size, 1, chip8_rom) == file_size
-	&& !fclose(chip8_rom)) {
-		chip8->pc = 0x200;
-		chip8->sp = 0xEA0;
-		chip8->idx = 0;
-		return CHIP8_SUCCESS;
+	if (chip8_file) {
+		fseek(chip8_file, 0, SEEK_END);
+		return ftell(chip8_file);
 	}
-
-	return CHIP8_FAILURE;
+	return -1;
 }
 
 /*
- * @brief Loads the 4x5 chip-8 bitmap font data into memory.
- *
- * This function loads the chip-8 bitmap font data that is used for
- * drawing hexadecimal character sprites (from 0x0 to 0xF).
- * Although there is room for a 4x5 font set, the implementation
- * utilizes only a 3x5 dimension.
+ * @brief Loads Chip-8 data into memory.
  */
-chip8_rc chip8_load_font(chip8_vm chip8[const static 1])
+chip8_rc chip8_load_data(chip8_byte chip8_mem[const static 1][CHIP8_MEM_SIZE],
+		const char file_path[static 1], const chip8_word index)
 {
-	FILE* chip8_font = fopen(CHIP8_FONT_PATH, "rb");
-	long file_size = chip8_measure_file(chip8_font);
+	long file_size = -1;
+	FILE* file = fopen(file_path, "rb");
 
-	rewind(chip8_font);
+	if (file) {
+		file_size = chip8_measure_file(file);
 
-	if (-1 != file_size
-	&& fread(&chip8->mem[0], file_size, 1, chip8_font) == file_size
-	&& !fclose(chip8_font)) {
-		return CHIP8_SUCCESS;
+		if (-1 < file_size) {
+			rewind(file);
+
+			if (fread(&chip8_mem[0][index], 1, file_size, file) == file_size
+			    && !fclose(file)) {
+				return CHIP8_SUCCESS;
+			}
+		}
 	}
 
 	return CHIP8_FAILURE;
@@ -97,18 +78,17 @@ chip8_rc chip8_load_font(chip8_vm chip8[const static 1])
  * @brief Loads shader source given by file path into a string of characters.
  */
 chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
-		const char* restrict shader_src)
+		char* restrict* const shader_src)
 {
 	FILE* chip8_shader = fopen(shader_path, "r");
 	const long file_size = chip8_measure_file(chip8_shader);
 
-	rewind(chip8_shader);
-	
 	if (-1 != file_size) {
-		shader_src = calloc(1, file_size + 1);
+		rewind(chip8_shader);
+		*shader_src = calloc(1, (size_t) (file_size + 1));
 
-		if (shader_src != NULL
-		&& fread(shader_src, file_size, 1, chip8_shader) == file_size
+		if ((*shader_src) != NULL
+		&& fread(*shader_src, 1, (size_t) file_size, chip8_shader) == file_size
 		&& !fclose(chip8_shader)) {
 			return CHIP8_SUCCESS;
 		}

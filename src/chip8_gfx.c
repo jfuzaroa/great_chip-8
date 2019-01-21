@@ -13,7 +13,7 @@
  */
 void chip8_glfw_error(int error, const char* description)
 {
-	CHIP8_FPUTS(stderr, "ERROR::GLFW::");
+	fputs("ERROR::OpenGL::GLFW::", stderr);
 	fprintf(stderr, "%s\n", description);
 }
 
@@ -24,6 +24,29 @@ void chip8_fb_size_callback(GLFWwindow* window,
 		const GLsizei width, const GLsizei height)
 {
 	glViewport(0, 0, width, height);
+}
+
+/*
+ * @brief Creates new renderer object along with the including shader program.
+ */
+static chip8_renderer* chip8_new_renderer(void)
+{
+	chip8_renderer* renderer = calloc(1, sizeof(*renderer));
+
+	if (!renderer) {
+		CHIP8_FPUTS(stderr,
+		            "ERROR::OpenGL::RENDERER: Memory allocation failed");
+		return NULL;
+	}
+	renderer->shader_program = glCreateProgram();
+
+	if (!renderer->shader_program) {
+		CHIP8_FPUTS(stderr,
+		            "ERROR::OpenGL::GLSL::PROGRAM: Shader program creation failed");
+		free(renderer);
+		return NULL;
+	}
+	return renderer;
 }
 
 /*
@@ -59,52 +82,19 @@ static chip8_rc chip8_compile_shader(const GLuint shader,
 }
 
 /*
- * @brief Creates new render object and corresponding shader program.
- */
-static chip8_rc chip8_init_renderer(chip8_renderer* renderer)
-{
-	renderer = calloc(1, sizeof(renderer));
-
-	if (!renderer) {
-		CHIP8_FPUTS(stderr,
-				"ERROR::OpenGL::RENDERER: Memory allocation failed");
-		return CHIP8_FAILURE;
-	}
-
-	renderer->shader_program = glCreateProgram();
-
-	if (renderer->shader_program) {
-		CHIP8_FPUTS(stderr,
-				"ERROR::OpenGL::GLSL::PROGRAM: Shader program creation failed");
-		return CHIP8_FAILURE;
-	}
-
-	renderer->model_location = glGetUniformLocation(renderer->shader_program,
-			"model");
-	renderer->projection[0][0] = 1.0f / (GLfloat) renderer->width;
-	renderer->projection[0][3] = -0.5f;
-	renderer->projection[1][1] = 1.0f / (GLfloat) renderer->height;
-	renderer->projection[1][3] = -0.5f;
-	memcpy(renderer->sprite_color, (const GLfloat[3]){1.0f, 1.0f, 1.0f},
-			sizeof(renderer->sprite_color));
-
-	return CHIP8_SUCCESS;
-}
-
-/*
  * @brief Load and compile GLSL shader.
  */
 static chip8_rc chip8_init_shader(const char shader_path[const static 1],
 		const GLenum shader_type, const GLuint program)
 {
-	const char* shader_src;
-	const GLuint shader = glCreateShader(shader);
+	char* shader_src;
+	const GLuint shader = glCreateShader(shader_type);
 	chip8_rc status = CHIP8_SUCCESS;
 
 	if (!shader) {
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLSL: Shader creation failed");
 		status = CHIP8_FAILURE;
-	} else if (!chip8_load_shader(shader_path, shader_src)) {
+	} else if (!chip8_load_shader(shader_path, &shader_src)) {
 		CHIP8_PERROR("GLSL load failed");
 		status = CHIP8_FAILURE;
 	} else if (!chip8_compile_shader(shader, shader_src)) {
@@ -203,6 +193,16 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 	glDeleteBuffers(1, &vertex_buffer);
 	glDeleteBuffers(1, &element_buffer);
 
+	renderer->model_location = glGetUniformLocation(renderer->shader_program,
+	                                                "model");
+	renderer->projection[0][0] = 1.0f / (GLfloat) renderer->width;
+	renderer->projection[0][3] = -0.5f;
+	renderer->projection[1][1] = 1.0f / (GLfloat) renderer->height;
+	renderer->projection[1][3] = -0.5f;
+	memcpy(renderer->sprite_color, (const GLfloat[3]){1.0f, 1.0f, 1.0f},
+	       sizeof(renderer->sprite_color));
+
+
 	glUseProgram(renderer->shader_program);
 	glUniformMatrix4fv(
 			glGetUniformLocation(renderer->shader_program, "projection"),
@@ -212,16 +212,18 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 /*
  * @brief Initialize OpenGL context, create window, and compile shader program.
  */
-chip8_rc chip8_init_gfx(GLFWwindow* window, chip8_renderer* renderer,
-		const double scale)
+chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
+		chip8_renderer** const renderer_ptr, const GLfloat scale)
 {
+	GLFWwindow* window;
+	chip8_renderer* renderer;
+
 	glfwSetErrorCallback(chip8_glfw_error);
 
 	if (!glfwInit()) {
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLFW: Initialization failed");
 		goto ERROR;
 	}
-
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -230,14 +232,14 @@ chip8_rc chip8_init_gfx(GLFWwindow* window, chip8_renderer* renderer,
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE)
 #endif
 
-	window = glfwCreateWindow((int) (scale * CHIP8_GFX_RES_WIDTH),
+	*window_ptr = glfwCreateWindow((int) (scale * CHIP8_GFX_RES_WIDTH),
 			(int) (scale * CHIP8_GFX_RES_HEIGHT), "great_chip-8", NULL, NULL);
 
-	if (!window) {
+	if (!*window_ptr) {
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLFW: Window creation failed");
 		goto ERROR;
 	}
-
+	window = *window_ptr;
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, chip8_fb_size_callback);
 	glfwSwapInterval(1);
@@ -248,10 +250,12 @@ chip8_rc chip8_init_gfx(GLFWwindow* window, chip8_renderer* renderer,
 		goto ERROR;
 	}
 
-	if (!chip8_init_renderer(renderer)) {
+	*renderer_ptr = chip8_new_renderer();
+	if (!*renderer_ptr) {
 		CHIP8_FPUTS(stderr, "ERROR::OpenGL::RENDERER: Initialization failed");
 		goto ERROR;
 	}
+	renderer = *renderer_ptr;
 	renderer->scale = scale;
 	renderer->width = scale * CHIP8_GFX_RES_WIDTH;
 	renderer->height = scale * CHIP8_GFX_RES_HEIGHT;
@@ -272,13 +276,11 @@ chip8_rc chip8_init_gfx(GLFWwindow* window, chip8_renderer* renderer,
 	return CHIP8_SUCCESS;
 
 ERROR:
-	free(renderer);
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return CHIP8_FAILURE;
 }
 
-/* TODO */
 static void chip8_draw_sprite(chip8_renderer renderer[const static 1],
 		GLuint x, GLuint y)
 {
@@ -289,13 +291,13 @@ static void chip8_draw_sprite(chip8_renderer renderer[const static 1],
 }
 
 void chip8_render(const chip8_vm chip8[const static 1],
-		const chip8_renderer renderer[const static 1])
+		chip8_renderer renderer[const static 1])
 {
 	glUseProgram(renderer->shader_program);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (int i = 0; i < CHIP8_GFX_RES_WIDTH; i++) {
-		for (int j = 0; j < CHIP8_GFX_RES_HEIGHT; j++) {
+	for (chip8_byte i = 0; i < CHIP8_GFX_RES_WIDTH; i++) {
+		for (chip8_byte j = 0; j < CHIP8_GFX_RES_HEIGHT; j++) {
 			if (chip8->gfx[i][j]) {
 				chip8_draw_sprite(renderer, i, j);
 			}

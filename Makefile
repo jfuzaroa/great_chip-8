@@ -3,7 +3,7 @@ CFLAGS	= -g -std=c11 -Iinclude $(WFLAGS) $(OPFLAGS)
 WFLAGS	= -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow \
 		  -Wwrite-strings -Wstrict-prototypes -Wredundant-decls \
 		  -Wnested-externs -Wmissing-include-dirs
-LDFLAGS = -lGLEW -lglfw
+LDFLAGS = -lGL -lGLEW -lglfw
 # OPFLAGS = 
 RLFLAGS	= -march=native -O2 -pipe
 
@@ -15,7 +15,7 @@ SRCS 	= $(wildcard src/*.c src/**/*.c)
 HDRS	= $(wildcard include/*.h include/**/*.h)
 OBJS	= $(patsubst %.c, build/%.o, $(notdir $(SRCS)))
 
-EXEC	= great-chip-8
+EXEC	= great_chip-8
 TRGT	= bin/$(EXEC)
 
 all: $(SRCS) $(HDRS) $(TRGT)

@@ -505,7 +505,7 @@ void chip8_REGDMP(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-	for(unsigned short i = regx; i >= 0; i--) {
+	for(short i = regx; i >= 0; i--) {
 		chip8->mem[chip8->idx+i] = chip8->regs[i];
 	}
 	chip8->pc += 2;
@@ -518,7 +518,7 @@ void chip8_REGLD(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-	for(unsigned short i = regx; i >= 0; i--) {
+	for(short i = regx; i >= 0; i--) {
 		chip8->regs[i] = chip8->mem[chip8->idx+i];
 	}
 	chip8->pc += 2;
