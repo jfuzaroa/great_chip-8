@@ -18,8 +18,8 @@ typedef struct chip8_renderer {
 	GLfloat scale; /* resolution scalar */
 	GLfloat width; /* resolution width */
 	GLfloat height; /* resolution height */
-	GLfloat projection[4][4]; /* projection matrix */
-	GLfloat model[4][4]; /* model matrix */
+	GLfloat projection[16]; /* projection matrix */
+	GLfloat model[16]; /* model matrix */
 	GLfloat sprite_color[3]; /* sprite color */
 } chip8_renderer;
 

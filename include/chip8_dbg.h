@@ -33,7 +33,7 @@ do {																\
 #define CHIP8_DBG_LAST(...) CHIP8_DBG_LAST0(__VA_ARGS__, 0)
 
 /*
- * @brief Prints debug message using fprintf() whilst containing contextual program info.
+ * @brief Prints debug message whilst containing contextual program info.
  */
 #define CHIP8_DBG(...)								\
 CHIP8_DBG_PRE(CHIP8_DBG_FIRST(__VA_ARGS__) "%.0d",	\

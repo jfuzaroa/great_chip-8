@@ -371,7 +371,7 @@ void chip8_DRWSPT(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 	const chip8_reg regy = (chip8->istr & 0x00F0) >> 4;
-	const chip8_byte spt_hgt = chip8->istr & 0x0F;
+	const chip8_byte spt_hgt = chip8->istr & 0x000F;
 
 	chip8->regs[VF] = 0;
 

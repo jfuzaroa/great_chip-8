@@ -106,6 +106,8 @@ int main(int argc, char* argv[argc+1])
 			goto EXIT;
 		}
 		chip8_render(chip8, renderer);
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 
 EXIT:

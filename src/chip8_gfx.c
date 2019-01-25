@@ -156,8 +156,8 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 
 	const GLfloat vertices[8] = {
 			0.0f, 0.0f,
-			1.0f, 0.0f,
 			0.0f, 1.0f,
+			1.0f, 0.0f,
 			1.0f, 1.0f
 	};
 
@@ -184,6 +184,7 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 			GL_STATIC_DRAW);
 
 	/* interpret vertex and index data on bound vertex array */
+	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
 			(GLvoid*) 0);
 
@@ -195,18 +196,26 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 
 	renderer->model_location = glGetUniformLocation(renderer->shader_program,
 	                                                "model");
-	renderer->projection[0][0] = 1.0f / (GLfloat) renderer->width;
-	renderer->projection[0][3] = -0.5f;
-	renderer->projection[1][1] = 1.0f / (GLfloat) renderer->height;
-	renderer->projection[1][3] = -0.5f;
+	renderer->projection[0]  =  2.0f / renderer->width;
+	renderer->projection[5]  = -2.0f / renderer->height;
+	renderer->projection[13] = -1.0f;
+	renderer->projection[14] =  1.0f;
+	renderer->projection[15] =  1.0f;
+
+	renderer->model[0]  = renderer->scale;
+	renderer->model[5]  = renderer->scale;
+	renderer->model[15] = 1.0f;
+
 	memcpy(renderer->sprite_color, (const GLfloat[3]){1.0f, 1.0f, 1.0f},
 	       sizeof(renderer->sprite_color));
-
 
 	glUseProgram(renderer->shader_program);
 	glUniformMatrix4fv(
 			glGetUniformLocation(renderer->shader_program, "projection"),
 			1, GL_FALSE, renderer->projection);
+	glUniform3fv(
+			glGetUniformLocation(renderer->shader_program, "sprite_color"),
+			1, renderer->sprite_color);
 }
 
 /*
@@ -282,12 +291,13 @@ ERROR:
 }
 
 static void chip8_draw_sprite(chip8_renderer renderer[const static 1],
-		GLuint x, GLuint y)
+		const GLuint x, const GLuint y)
 {
-	renderer->model[0][3] = renderer->scale * x;
-	renderer->model[1][3] = renderer->scale * y;
+	renderer->model[12] =  renderer->scale * x;
+	renderer->model[13] = -renderer->scale * y;
 	glUniformMatrix4fv(renderer->model_location, 1, GL_FALSE, renderer->model);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void *) 0);
+	glBindVertexArray(renderer->vertex_array);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid *) 0);
 }
 
 void chip8_render(const chip8_vm chip8[const static 1],
@@ -296,10 +306,10 @@ void chip8_render(const chip8_vm chip8[const static 1],
 	glUseProgram(renderer->shader_program);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (chip8_byte i = 0; i < CHIP8_GFX_RES_WIDTH; i++) {
-		for (chip8_byte j = 0; j < CHIP8_GFX_RES_HEIGHT; j++) {
+	for (chip8_byte i = 0; i <  CHIP8_GFX_RES_HEIGHT; i++) {
+		for (chip8_byte j = 0; j < CHIP8_GFX_RES_WIDTH; j++) {
 			if (chip8->gfx[i][j]) {
-				chip8_draw_sprite(renderer, i, j);
+				chip8_draw_sprite(renderer, j, i);
 			}
 		}
 	}
