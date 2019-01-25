@@ -13,7 +13,7 @@
  */
 void chip8_glfw_error(int error, const char* description)
 {
-	fputs("ERROR::OpenGL::GLFW::", stderr);
+	fputs("great_chip-8::ERROR::OpenGL::GLFW::", stderr);
 	fprintf(stderr, "%s\n", description);
 }
 
@@ -291,10 +291,10 @@ ERROR:
 }
 
 static void chip8_draw_sprite(chip8_renderer renderer[const static 1],
-		const GLuint x, const GLuint y)
+		const chip8_byte x, const chip8_byte y)
 {
-	renderer->model[12] =  renderer->scale * x;
-	renderer->model[13] = -renderer->scale * y;
+	renderer->model[12] =  renderer->scale * (GLfloat) x;
+	renderer->model[13] = -renderer->scale * (GLfloat) y;
 	glUniformMatrix4fv(renderer->model_location, 1, GL_FALSE, renderer->model);
 	glBindVertexArray(renderer->vertex_array);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid *) 0);

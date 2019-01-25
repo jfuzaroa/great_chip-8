@@ -16,7 +16,7 @@
 do {																\
 	if (CHIP8_DBG_ON) {												\
 		fprintf(stderr, "great_chip-8::DEBUG:%s:%d:%s: " MSG "\n",	\
-				__FILE__, __LINE__+0UL, __func__, __VA_ARGS__)		\
+				__FILE__, __LINE__+0UL, __func__, __VA_ARGS__);		\
 	}																\
 } while (false)
 
@@ -29,14 +29,17 @@ do {																\
 /*
  * @brief Remove the first argument from the list of arguments.
  */
-#define CHIP8_DBG_LAST(_0, ...) __VA_ARGS__
+#define CHIP8_DBG_LAST0(_0, ...) __VA_ARGS__
 #define CHIP8_DBG_LAST(...) CHIP8_DBG_LAST0(__VA_ARGS__, 0)
 
 /*
  * @brief Prints debug message whilst containing contextual program info.
  */
-#define CHIP8_DBG(...)								\
-CHIP8_DBG_PRE(CHIP8_DBG_FIRST(__VA_ARGS__) "%.0d",	\
-		CHIP8_DBG_LAST(__VA_ARGS__))
-
+#if CHIP8_DBG_ON == 0
+	#define CHIP8_DBG(...) do {} while (false)
+#else
+	#define CHIP8_DBG(...)								\
+	CHIP8_DBG_PRE(CHIP8_DBG_FIRST(__VA_ARGS__) "%.0d",	\
+			CHIP8_DBG_LAST(__VA_ARGS__))
+#endif
 #endif
