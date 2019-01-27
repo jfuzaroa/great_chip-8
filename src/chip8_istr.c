@@ -93,7 +93,7 @@ chip8_opcode chip8_disassemble(const chip8_word istr_word)
  */
 void chip8_RCA(chip8_vm chip8[const static 1])
 {
-	CHIP8_DBG("(0x0%X) RCA %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
+	CHIP8_ISTR_LOG("(0x0%03X) RCA %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
     CHIP8_FPUTS(stderr, "ERROR: RCA opcode executed, this shouldn't happen");
 }
 
@@ -105,7 +105,7 @@ void chip8_CLS(chip8_vm chip8[const static 1])
 {
 	memset(chip8->gfx, 0, sizeof(chip8->gfx));
 	chip8->pc += 2;
-	CHIP8_DBG("(0x00E0) CLS");
+	CHIP8_ISTR_LOG("(0x00E0) CLS");
 }
 
 /*
@@ -117,7 +117,7 @@ void chip8_RET(chip8_vm chip8[const static 1])
     chip8->sp -= 2;
     chip8->pc = chip8->mem[chip8->sp] << 8;
     chip8->pc += chip8->mem[chip8->sp+1];
-    CHIP8_DBG("(0x00EE) RET");
+    CHIP8_ISTR_LOG("(0x00EE) RET");
 }
 
 /*
@@ -127,7 +127,7 @@ void chip8_RET(chip8_vm chip8[const static 1])
 void chip8_JMP(chip8_vm chip8[const static 1])
 {
     chip8->pc = chip8->istr & 0x0FFF;
-	CHIP8_DBG("(0x1%X) JMP %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
+	CHIP8_ISTR_LOG("(0x1%03X) JMP %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
 }
 
 /*
@@ -140,7 +140,7 @@ void chip8_CALL(chip8_vm chip8[const static 1])
     chip8->mem[chip8->sp+1] = (chip8->pc+2) & 0x00FF;
     chip8->sp += 2;
     chip8->pc = chip8->istr & 0x0FFF;
-	CHIP8_DBG("(0x2%X) CALL %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
+	CHIP8_ISTR_LOG("(0x2%03X) CALL %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
 }
 
 /*
@@ -156,7 +156,7 @@ void chip8_SKPEI(chip8_vm chip8[const static 1])
     } else {
 		chip8->pc += 2;
 	}
-	CHIP8_DBG("(0x3%X%X) SKPEI V%X, %u", regx, chip8->istr & 0x00FF, regx,
+	CHIP8_ISTR_LOG("(0x3%X%02X) SKPEI V%X, %u", regx, chip8->istr & 0x00FF, regx,
 			chip8->istr & 0x00FF);
 }
 
@@ -173,7 +173,7 @@ void chip8_SKPNEI(chip8_vm chip8[const static 1])
     } else {
 		chip8->pc += 2;
 	}
-	CHIP8_DBG("(0x4%X%X) SKPNEI V%X, %u", regx, chip8->istr & 0x00FF, regx,
+	CHIP8_ISTR_LOG("(0x4%X%02X) SKPNEI V%X, %u", regx, chip8->istr & 0x00FF, regx,
 	          chip8->istr & 0x00FF);
 }
 
@@ -191,7 +191,7 @@ void chip8_SKPE(chip8_vm chip8[const static 1])
     } else {
 		chip8->pc += 2;
 	}
-	CHIP8_DBG("(0x5%X%X0) SKPE V%X, V%u", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x5%X%X0) SKPE V%X, V%u", regx, regy, regx, regy);
 }
 
 /*
@@ -204,7 +204,7 @@ void chip8_MOVI(chip8_vm chip8[const static 1])
 
     chip8->regs[regx] = chip8->istr & 0x00FF;
     chip8->pc += 2;
-	CHIP8_DBG("(0x6%X%X) MOVI V%X, %u", regx, chip8->istr & 0x00FF, regx,
+	CHIP8_ISTR_LOG("(0x6%X%02X) MOVI V%X, %u", regx, chip8->istr & 0x00FF, regx,
 			chip8->istr & 0x00FF);
 }
 
@@ -218,7 +218,7 @@ void chip8_ADDI(chip8_vm chip8[const static 1])
 
     chip8->regs[regx] += chip8->istr & 0x00FF;
     chip8->pc += 2;
-	CHIP8_DBG("(0x7%X%X) ADDI V%X, %u", regx, chip8->istr & 0x00FF, regx,
+	CHIP8_ISTR_LOG("(0x7%X%02X) ADDI V%X, %u", regx, chip8->istr & 0x00FF, regx,
 	          chip8->istr & 0x00FF);
 }
 
@@ -233,7 +233,7 @@ void chip8_MOV(chip8_vm chip8[const static 1])
 
     chip8->regs[regx] = chip8->regs[regy];
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X0) MOV V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X0) MOV V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -247,7 +247,7 @@ void chip8_OR(chip8_vm chip8[const static 1])
 
     chip8->regs[regx] |= chip8->regs[regy];
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X1) OR V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X1) OR V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -261,7 +261,7 @@ void chip8_AND(chip8_vm chip8[const static 1])
 
     chip8->regs[regx] &= chip8->regs[regy];
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X2) AND V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X2) AND V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -275,7 +275,7 @@ void chip8_XOR(chip8_vm chip8[const static 1])
 
     chip8->regs[regx] ^= chip8->regs[regy];
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X3) XOR V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X3) XOR V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -294,7 +294,7 @@ void chip8_ADD(chip8_vm chip8[const static 1])
     }
     chip8->regs[regx] += chip8->regs[regy];
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X4) ADD V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X4) ADD V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -313,7 +313,7 @@ void chip8_SUB(chip8_vm chip8[const static 1])
     }
     chip8->regs[regx] -= chip8->regs[regy];
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X5) SUB V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X5) SUB V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -328,7 +328,7 @@ void chip8_SHFR(chip8_vm chip8[const static 1])
     chip8->regs[VF] = chip8->regs[regx] & 0x01;
     chip8->regs[regx] >>= 1;
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X6) SHFR V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X6) SHFR V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -347,7 +347,7 @@ void chip8_SUBB(chip8_vm chip8[const static 1])
     }
     chip8->regs[regx] = chip8->regs[regy] - chip8->regs[regx];
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%X7) SUBB V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%X7) SUBB V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -362,7 +362,7 @@ void chip8_SHFL(chip8_vm chip8[const static 1])
     chip8->regs[VF] = chip8->regs[regx] & 0x80;
     chip8->regs[regx] <<= 1;
     chip8->pc += 2;
-	CHIP8_DBG("(0x8%X%XE) SHFL V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x8%X%XE) SHFL V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -379,7 +379,7 @@ void chip8_SKPNE(chip8_vm chip8[const static 1])
     } else {
 		chip8->pc += 2;
 	}
-	CHIP8_DBG("(0x9%X%X0) SKPNE V%X, V%X", regx, regy, regx, regy);
+	CHIP8_ISTR_LOG("(0x9%X%X0) SKPNE V%X, V%X", regx, regy, regx, regy);
 }
 
 /*
@@ -390,7 +390,9 @@ void chip8_MIV(chip8_vm chip8[const static 1])
 {
     chip8->idx = chip8->istr & 0x0FFF;
     chip8->pc += 2;
-	CHIP8_DBG("(0xA%X) MIV %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
+	CHIP8_ISTR_LOG("(0xA%03X) MIV %u", chip8->istr & 0x0FFF,
+			chip8->istr & 0x0FFF);
+	CHIP8_ISTR_LOG("memory[index] -> %u", chip8->mem[chip8->idx]);
 }
 
 /*
@@ -400,7 +402,8 @@ void chip8_MIV(chip8_vm chip8[const static 1])
 void chip8_JMPO(chip8_vm chip8[const static 1])
 {
     chip8->pc = (chip8->istr & 0x0FFF) + chip8->regs[V0];
-	CHIP8_DBG("(0xB%X) JMPO %u", chip8->istr & 0x0FFF, chip8->istr & 0x0FFF);
+	CHIP8_ISTR_LOG("(0xB%03X) JMPO %u", chip8->istr & 0x0FFF,
+			chip8->istr & 0x0FFF);
 }
 
 /*
@@ -413,8 +416,8 @@ void chip8_RNDMSK(chip8_vm chip8[const static 1])
 
     chip8->regs[regx] = (rand() % 256) & (chip8->istr & 0x00FF);
 	chip8->pc += 2;
-	CHIP8_DBG("(0xC%X%X) RNDMSK V%X, %u", regx, chip8->istr & 0x00FF, regx,
-			chip8->istr & 0x00FF);
+	CHIP8_ISTR_LOG("(0xC%X%02X) RNDMSK V%X, %u", regx, chip8->istr & 0x00FF,
+			regx, chip8->istr & 0x00FF);
 }
 
 /*
@@ -441,7 +444,7 @@ void chip8_DRWSPT(chip8_vm chip8[const static 1])
 		}
 	}
 	chip8->pc += 2;
-	CHIP8_DBG("(0xD%X%X%X) DRWSPT V%X, V%X, %u", regx, regy, spt_hgt, regx,
+	CHIP8_ISTR_LOG("(0xD%X%X%X) DRWSPT V%X, V%X, %u", regx, regy, spt_hgt, regx,
 			regy, spt_hgt);
 }
 
@@ -458,7 +461,7 @@ void chip8_SKPKEY(chip8_vm chip8[const static 1])
 	} else {
 		chip8->pc += 2;
 	}
-	CHIP8_DBG("(0xE%X9E) SKPKEY V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xE%X9E) SKPKEY V%X", regx, regx);
 }
 
 /*
@@ -474,7 +477,7 @@ void chip8_SKPNKEY(chip8_vm chip8[const static 1])
 	} else {
 		chip8->pc += 2;
 	}
-	CHIP8_DBG("(0xE%XA1) SKPNKEY V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xE%XA1) SKPNKEY V%X", regx, regx);
 }
 
 /*
@@ -487,7 +490,7 @@ void chip8_MOVDLY(chip8_vm chip8[const static 1])
 
 	chip8->regs[regx] = chip8->dly_tmr;
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X07) MOVDLY V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X07) MOVDLY V%X", regx, regx);
 }
 
 /*
@@ -502,7 +505,7 @@ void chip8_WTKEY(chip8_vm chip8[const static 1])
 	for (int i = 0; i < 16; i++) {
 		key_mask |= chip8->keys[i] << i;
 	}
-	CHIP8_DBG("(0xF%X0A) WTKEY V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X0A) WTKEY V%X", regx, regx);
 }
 
 /*
@@ -515,7 +518,7 @@ void chip8_SETDLY(chip8_vm chip8[const static 1])
 
 	chip8->dly_tmr = chip8->regs[regx];
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X15) SETDLY V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X15) SETDLY V%X", regx, regx);
 }
 
 /*
@@ -528,7 +531,7 @@ void chip8_SETSND(chip8_vm chip8[const static 1])
 
 	chip8->snd_tmr = chip8->regs[regx];
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X18) SETSND V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X18) SETSND V%X", regx, regx);
 }
 
 /*
@@ -541,7 +544,7 @@ void chip8_IADD(chip8_vm chip8[const static 1])
 
 	chip8->idx += regx;
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X1E) IADD V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X1E) IADD V%X", regx, regx);
 }
 
 /*
@@ -554,7 +557,7 @@ void chip8_ISETSPT(chip8_vm chip8[const static 1])
 
 	chip8->idx = regx * 5;
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X1E) ISETSPT V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X1E) ISETSPT V%X", regx, regx);
 }
 
 /*
@@ -569,7 +572,7 @@ void chip8_IBCD(chip8_vm chip8[const static 1])
 	chip8->mem[chip8->idx+1] = regx / 10;
 	chip8->mem[chip8->idx+2] = regx;
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X33) IBCD V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X33) IBCD V%X", regx, regx);
 }
 
 /*
@@ -584,7 +587,7 @@ void chip8_REGDMP(chip8_vm chip8[const static 1])
 		chip8->mem[chip8->idx+i] = chip8->regs[i];
 	}
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X55) REGDMP V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X55) REGDMP V%X", regx, regx);
 }
 
 /*
@@ -599,7 +602,7 @@ void chip8_REGLD(chip8_vm chip8[const static 1])
 		chip8->regs[i] = chip8->mem[chip8->idx+i];
 	}
 	chip8->pc += 2;
-	CHIP8_DBG("(0xF%X65) REGLD V%X", regx, regx);
+	CHIP8_ISTR_LOG("(0xF%X65) REGLD V%X", regx, regx);
 }
 
 chip8_istr* chip8_istr_set[CHIP8_ISTR_SET_SIZE] = {
