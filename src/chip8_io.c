@@ -5,12 +5,12 @@
 #include "chip8.h"
 #include "chip8_io.h"
 
-/*	 Chip-8 Keypad			Keyboard
+/*	  Chip-8 Keypad         Keyboard
  *	   +-+-+-+-+			+-+-+-+-+
  *	   |1|2|3|C|			|1|2|3|4|
  *	   +-+-+-+-+			+-+-+-+-+
  *	   |4|5|6|D|			|Q|W|E|R|
- *	   +-+-+-+-+	 =>		+-+-+-+-+
+ *	   +-+-+-+-+	  =>	+-+-+-+-+
  *	   |7|8|9|E|			|A|S|D|F|
  *	   +-+-+-+-+			+-+-+-+-+
  *	   |A|0|B|F|			|Z|X|C|V|
@@ -40,7 +40,7 @@ void chip8_process_input(chip8_vm[const static 1], GLFWwindow*);
 /*
  * @brief Returns the number of bytes in a file.
  */
-static long chip8_measure_file(const FILE chip8_file[static 1])
+static inline long chip8_measure_file(const FILE chip8_file[static 1])
 {
 	if (chip8_file) {
 		fseek(chip8_file, 0, SEEK_END);
@@ -64,13 +64,12 @@ chip8_rc chip8_load_data(chip8_byte chip8_mem[const static 1][CHIP8_MEM_SIZE],
 		if (-1 < file_size) {
 			rewind(file);
 
-			if (fread(&chip8_mem[0][index], 1, file_size, file) == file_size
+			if (fread(&((*chip8_mem)[index]), 1, file_size, file) == file_size
 			    && !fclose(file)) {
 				return CHIP8_SUCCESS;
 			}
 		}
 	}
-
 	return CHIP8_FAILURE;
 }
 
@@ -85,14 +84,13 @@ chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
 
 	if (-1 != file_size) {
 		rewind(chip8_shader);
-		*shader_src = calloc(1, (size_t) (file_size + 1));
+		*shader_src = calloc(1, file_size + 1);
 
 		if ((*shader_src) != NULL
-		&& fread(*shader_src, 1, (size_t) file_size, chip8_shader) == file_size
+		&& fread(*shader_src, 1, file_size, chip8_shader) == file_size
 		&& !fclose(chip8_shader)) {
 			return CHIP8_SUCCESS;
 		}
 	}
-
 	return CHIP8_FAILURE;
 }

@@ -13,7 +13,7 @@
  */
 void chip8_glfw_error(int error, const char* description)
 {
-	fputs("great_chip-8::ERROR::OpenGL::GLFW::", stderr);
+	CHIP8_ERR("great_chip-8::ERROR::OpenGL::GLFW::");
 	fprintf(stderr, "%s\n", description);
 }
 
@@ -34,15 +34,14 @@ static chip8_renderer* chip8_new_renderer(void)
 	chip8_renderer* renderer = calloc(1, sizeof(*renderer));
 
 	if (!renderer) {
-		CHIP8_FPUTS(stderr,
-		            "ERROR::OpenGL::RENDERER: Memory allocation failed");
+		CHIP8_ERR("ERROR::OpenGL::RENDERER: Memory allocation failed");
 		return NULL;
 	}
 	renderer->shader_program = glCreateProgram();
 
 	if (!renderer->shader_program) {
-		CHIP8_FPUTS(stderr,
-		            "ERROR::OpenGL::GLSL::PROGRAM: Shader program creation failed");
+		CHIP8_ERR("ERROR::OpenGL::GLSL::PROGRAM: "
+				"Shader program creation failed");
 		free(renderer);
 		return NULL;
 	}
@@ -92,18 +91,16 @@ static chip8_rc chip8_init_shader(const char shader_path[const static 1],
 	chip8_rc status = CHIP8_SUCCESS;
 
 	if (!shader) {
-		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLSL: Shader creation failed");
+		CHIP8_ERR("ERROR::OpenGL::GLSL: Shader creation failed");
 		status = CHIP8_FAILURE;
 	} else if (!chip8_load_shader(shader_path, &shader_src)) {
 		CHIP8_PERROR("GLSL load failed");
 		status = CHIP8_FAILURE;
 	} else if (!chip8_compile_shader(shader, shader_src)) {
 		if (GL_VERTEX_SHADER == shader_type) {
-			CHIP8_FPUTS(stderr,
-					"ERROR::OpenGL::GLSL::VERTEX: Compilation failed");
+			CHIP8_ERR("ERROR::OpenGL::GLSL::VERTEX: Compilation failed");
 		} else {
-			CHIP8_FPUTS(stderr,
-					"ERROR::OpenGL::GLSL::FRAGMENT: Compilation failed");
+			CHIP8_ERR("ERROR::OpenGL::GLSL::FRAGMENT: Compilation failed");
 		}
 		status = CHIP8_FAILURE;
 	}
@@ -230,7 +227,7 @@ chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
 	glfwSetErrorCallback(chip8_glfw_error);
 
 	if (!glfwInit()) {
-		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLFW: Initialization failed");
+		CHIP8_ERR("ERROR::OpenGL::GLFW: Initialization failed");
 		goto ERROR;
 	}
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -241,11 +238,11 @@ chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE)
 #endif
 
-	*window_ptr = glfwCreateWindow((int) (scale * CHIP8_GFX_RES_WIDTH),
-			(int) (scale * CHIP8_GFX_RES_HEIGHT), "great_chip-8", NULL, NULL);
+	*window_ptr = glfwCreateWindow(scale * CHIP8_GFX_RES_WIDTH,
+			scale * CHIP8_GFX_RES_HEIGHT, "great_chip-8", NULL, NULL);
 
 	if (!*window_ptr) {
-		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLFW: Window creation failed");
+		CHIP8_ERR("ERROR::OpenGL::GLFW: Window creation failed");
 		goto ERROR;
 	}
 	window = *window_ptr;
@@ -255,13 +252,13 @@ chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
 	glewExperimental = GL_TRUE;
 
 	if (GLEW_OK != glewInit()) {
-		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLEW: Initialization failed");
+		CHIP8_ERR("ERROR::OpenGL::GLEW: Initialization failed");
 		goto ERROR;
 	}
 
 	*renderer_ptr = chip8_new_renderer();
 	if (!*renderer_ptr) {
-		CHIP8_FPUTS(stderr, "ERROR::OpenGL::RENDERER: Initialization failed");
+		CHIP8_ERR("ERROR::OpenGL::RENDERER: Initialization failed");
 		goto ERROR;
 	}
 	renderer = *renderer_ptr;
@@ -273,12 +270,12 @@ chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
 			renderer->shader_program)
 		|| !chip8_init_shader(CHIP8_FRAG_SHADER_PATH, GL_FRAGMENT_SHADER,
 			renderer->shader_program)) {
-		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLSL: Initialization failed");
+		CHIP8_ERR("ERROR::OpenGL::GLSL: Initialization failed");
 		goto ERROR;
 	}
 
 	if (!chip8_link_gfx_program(renderer->shader_program)) {
-		CHIP8_FPUTS(stderr, "ERROR::OpenGL::GLSL::PROGRAM:: Linking failed");
+		CHIP8_ERR("ERROR::OpenGL::GLSL::PROGRAM:: Linking failed");
 		goto ERROR;
 	}
 	chip8_init_render_data(renderer);

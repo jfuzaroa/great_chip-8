@@ -13,6 +13,9 @@
 #define CHIP8_FPUTS(STRM, MSG) \
 	fputs("great_chip-8::" MSG "\n", (FILE*) { 0 } = STRM)
 
+#define CHIP8_ERR(ERR_MSG) \
+	fputs("great_chip-8::" ERR_MSG "\n", stderr)
+
 #define CHIP8_PERROR(ERR_MSG) \
 	perror("great_chip-8::PERROR: " ERR_MSG "")
 
@@ -28,7 +31,7 @@ chip8_rc chip8_load_shader(const char[const restrict static 1],
  * @brief Processes keyboard mapped keyboard input using GLFW.
  */
 inline void chip8_process_input(chip8_vm chip8[const static 1],
-		GLFWwindow* window)
+		GLFWwindow* const window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);

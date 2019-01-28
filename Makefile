@@ -35,6 +35,6 @@ clean:
 	@rm -rf bin build
 
 print:
-	@echo $(SRCS)
-	@echo $(HDRS)
-	@echo $(OBJS)
+	@echo Header Files: $(HDRS)
+	@echo Source Files: $(SRCS)
+	@echo Object Files: $(OBJS)

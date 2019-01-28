@@ -15,12 +15,14 @@ typedef struct chip8_renderer {
 	GLuint shader_program; /* shader program ID */
 	GLuint vertex_array; /* vertex array ID */
 	GLint model_location; /* model matrix location */
-	GLfloat scale; /* resolution scalar */
-	GLfloat width; /* resolution width */
-	GLfloat height; /* resolution height */
+
 	GLfloat projection[16]; /* projection matrix */
 	GLfloat model[16]; /* model matrix */
 	GLfloat sprite_color[3]; /* sprite color */
+
+	GLfloat scale; /* resolution scalar */
+	GLfloat width; /* resolution width */
+	GLfloat height; /* resolution height */
 } chip8_renderer;
 
 chip8_rc chip8_init_gfx(GLFWwindow** const, chip8_renderer** const,

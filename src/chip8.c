@@ -17,7 +17,7 @@ static chip8_vm* chip8_new_vm(void)
 	chip8_vm* chip8 = calloc(1, sizeof(*chip8));
 
 	if (!chip8) {
-		CHIP8_FPUTS(stderr, "ERROR::Memory allocation failed");
+		CHIP8_ERR("ERROR::Memory allocation failed");
 		return NULL;
 	}
 	chip8->pc = 0x200;
@@ -96,14 +96,14 @@ int main(int argc, char* argv[argc+1])
 	}
 
 	if (!chip8_init_vm(&chip8, argv, rom_index)) {
-		CHIP8_FPUTS(stderr, "ERROR: Virtual machine initialization failed");
+		CHIP8_ERR("ERROR: Virtual machine initialization failed");
 		exit_state = CHIP8_FAILURE;
 		goto EXIT;
 	}
 
 	/* initialize graphics and create window */
 	if (!chip8_init_gfx(&window, &renderer, CHIP8_DEFAULT_RES_SCALE)) {
-		CHIP8_FPUTS(stderr, "ERROR: OpenGL initialization failed");
+		CHIP8_ERR("ERROR: OpenGL initialization failed");
 		exit_state = CHIP8_FAILURE;
 		goto EXIT;
 	}
@@ -114,8 +114,7 @@ int main(int argc, char* argv[argc+1])
 		chip8->istr = chip8_fetch(chip8);
 
 		if (!chip8_execute(chip8)) {
-			CHIP8_FPUTS(stderr,
-					"ERROR: chip-8 execution failed, this shouldn't happen");
+			CHIP8_ERR("ERROR: chip-8 execution failed, this shouldn't happen");
 			exit_state = CHIP8_FAILURE;
 			goto EXIT;
 		}
