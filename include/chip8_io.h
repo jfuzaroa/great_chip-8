@@ -2,10 +2,11 @@
 #define CHIP8_IO_H
 
 #include <stdio.h>
-#include <stdbool.h>
 #include <GLFW/glfw3.h>
 
 #include "chip8.h"
+
+#define CHIP8_FONT_PATH "./assets/chip8_font.c8f"
 
 #define CHIP8_PUTS(MSG) \
 	puts("great_chip-8: " MSG "")
@@ -19,32 +20,13 @@
 #define CHIP8_PERROR(ERR_MSG) \
 	perror("great_chip-8::PERROR: " ERR_MSG "")
 
-extern const int chip8_key_map[CHIP8_KEY_SIZE];
-
-chip8_rc chip8_load_data(chip8_byte[const static 1][CHIP8_MEM_SIZE],
+extern chip8_rc chip8_load_data(chip8_byte[const static 1][CHIP8_MEM_SIZE],
 		const char[static 1], const chip8_word);
 
-chip8_rc chip8_load_shader(const char[const restrict static 1],
-		char* restrict* const);
+extern chip8_rc chip8_load_shader(const char[const restrict static 1],
+		const char* restrict* const);
 
-/*
- * @brief Processes keyboard mapped keyboard input using GLFW.
- */
-inline void chip8_process_input(chip8_vm chip8[const static 1],
-		GLFWwindow* const window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, true);
-		return;
-	}
+extern void chip8_process_input(chip8_vm[const static 1],
+		GLFWwindow* const window);
 
-	for (int i = 0; i < CHIP8_KEY_SIZE; i++) {
-		if (glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS) {
-			chip8->keys[i] = 1;
-		} else {
-			chip8->keys[i] = 0;
-		}
-	}
-}
-
-#endif
+#endif /* CHIP8_IO_H */

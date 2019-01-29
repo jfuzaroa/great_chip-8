@@ -16,7 +16,7 @@
  *	   |A|0|B|F|			|Z|X|C|V|
  *	   +-+-+-+-+			+-+-+-+-+
  */
-const int chip8_key_map[CHIP8_KEY_SIZE] = {
+static const int chip8_key_map[CHIP8_KEY_SIZE] = {
 	GLFW_KEY_X,
 	GLFW_KEY_1,
 	GLFW_KEY_W,
@@ -34,8 +34,6 @@ const int chip8_key_map[CHIP8_KEY_SIZE] = {
 	GLFW_KEY_F,
 	GLFW_KEY_V
 };
-
-void chip8_process_input(chip8_vm[const static 1], GLFWwindow*);
 
 /*
  * @brief Returns the number of bytes in a file.
@@ -77,7 +75,7 @@ chip8_rc chip8_load_data(chip8_byte chip8_mem[const static 1][CHIP8_MEM_SIZE],
  * @brief Loads shader source given by file path into a string of characters.
  */
 chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
-		char* restrict* const shader_src)
+		const char* restrict* const shader_src)
 {
 	FILE* chip8_shader = fopen(shader_path, "r");
 	const long file_size = chip8_measure_file(chip8_shader);
@@ -93,4 +91,24 @@ chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
 		}
 	}
 	return CHIP8_FAILURE;
+}
+
+/*
+ * @brief Processes keyboard mapped keyboard input using GLFW.
+ */
+void chip8_process_input(chip8_vm chip8[const static 1],
+                                GLFWwindow* const window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, true);
+		return;
+	}
+
+	for (int i = 0; i < CHIP8_KEY_SIZE; i++) {
+		if (glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS) {
+			chip8->keys[i] = 1;
+		} else {
+			chip8->keys[i] = 0;
+		}
+	}
 }

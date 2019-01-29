@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define CHIP8_FONT_PATH "./assets/chip8_font.c8f"
-
 #define CHIP8_MEM_SIZE 4096
 #define CHIP8_GFX_RES_WIDTH 64
 #define CHIP8_GFX_RES_HEIGHT 32
@@ -14,6 +12,14 @@
 
 typedef uint8_t chip8_byte;
 typedef uint16_t chip8_word;
+
+/*
+ * @brief Return codes for chip-8 functions.
+ */
+typedef enum chip8_return_code {
+	CHIP8_FAILURE,
+	CHIP8_SUCCESS
+} chip8_rc;
 
 /*
  * @brief Register bank indices for register array.
@@ -44,12 +50,4 @@ typedef struct chip8_virtual_machine {
 	chip8_byte snd_tmr; /* used for sound effects */
 } chip8_vm;
 
-/*
- * @brief Return codes for chip-8 functions.
- */
-typedef enum chip8_return_code {
-	CHIP8_FAILURE,
-	CHIP8_SUCCESS
-} chip8_rc;
-
-#endif
+#endif /* CHIP8_H */

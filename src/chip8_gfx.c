@@ -13,15 +13,14 @@
  */
 void chip8_glfw_error(int error, const char* description)
 {
-	CHIP8_ERR("great_chip-8::ERROR::OpenGL::GLFW::");
-	fprintf(stderr, "%s\n", description);
+	fprintf(stderr, "great_chip-8::ERROR::OpenGL::GLFW::%s\n", description);
 }
 
 /*
  * @brief GLFW framebuffer size callback function.
  */
-void chip8_fb_size_callback(GLFWwindow* window,
-		const GLsizei width, const GLsizei height)
+void chip8_fb_size_callback(GLFWwindow* window, const GLsizei width,
+		const GLsizei height)
 {
 	glViewport(0, 0, width, height);
 }
@@ -31,7 +30,7 @@ void chip8_fb_size_callback(GLFWwindow* window,
  */
 static chip8_renderer* chip8_new_renderer(void)
 {
-	chip8_renderer* renderer = calloc(1, sizeof(*renderer));
+	chip8_renderer* const renderer = calloc(1, sizeof(*renderer));
 
 	if (!renderer) {
 		CHIP8_ERR("ERROR::OpenGL::RENDERER: Memory allocation failed");
@@ -76,7 +75,6 @@ static chip8_rc chip8_compile_shader(const GLuint shader,
 		}
 		return CHIP8_FAILURE;
 	}
-
 	return CHIP8_SUCCESS;
 }
 
@@ -86,7 +84,7 @@ static chip8_rc chip8_compile_shader(const GLuint shader,
 static chip8_rc chip8_init_shader(const char shader_path[const static 1],
 		const GLenum shader_type, const GLuint program)
 {
-	char* shader_src;
+	const char* shader_src;
 	const GLuint shader = glCreateShader(shader_type);
 	chip8_rc status = CHIP8_SUCCESS;
 
@@ -139,7 +137,6 @@ static chip8_rc chip8_link_gfx_program(const GLuint program)
 		}
 		return CHIP8_FAILURE;
 	}
-
 	return CHIP8_SUCCESS;
 }
 
@@ -163,12 +160,12 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 			1, 2, 3
 	};
 
-	/* generate VAO, VBO, and EBO for rendering */
+	/* generate VAO, VBO, and EBO */
 	glGenVertexArrays(1, &renderer->vertex_array);
 	glGenBuffers(1, &vertex_buffer);
 	glGenBuffers(1, &element_buffer);
 
-	/* bind render object's VAO */
+	/* bind renderer VAO */
 	glBindVertexArray(renderer->vertex_array);
 
 	/* bind vertex buffer and move vertex data into memory */
@@ -195,8 +192,8 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 	                                                "model");
 	renderer->projection[0]  =  2.0f / renderer->width;
 	renderer->projection[5]  = -2.0f / renderer->height;
-	renderer->projection[13] = -1.0f;
-	renderer->projection[14] =  1.0f;
+	renderer->projection[12] = -1.0f;
+	renderer->projection[13] =  1.0f;
 	renderer->projection[15] =  1.0f;
 
 	renderer->model[0]  = renderer->scale;
@@ -255,8 +252,8 @@ chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
 		CHIP8_ERR("ERROR::OpenGL::GLEW: Initialization failed");
 		goto ERROR;
 	}
-
 	*renderer_ptr = chip8_new_renderer();
+
 	if (!*renderer_ptr) {
 		CHIP8_ERR("ERROR::OpenGL::RENDERER: Initialization failed");
 		goto ERROR;
@@ -287,16 +284,22 @@ ERROR:
 	return CHIP8_FAILURE;
 }
 
-static void chip8_draw_sprite(chip8_renderer renderer[const static 1],
-		const chip8_byte x, const chip8_byte y)
+/*
+ * @brief Draws quad at array coordinates scaled to window size.
+ */
+static inline void chip8_draw(chip8_renderer renderer[const static 1],
+		const GLfloat x, const GLfloat y)
 {
-	renderer->model[12] =  renderer->scale * (GLfloat) x;
-	renderer->model[13] = -renderer->scale * (GLfloat) y;
+	renderer->model[12] = renderer->scale * x;
+	renderer->model[13] = renderer->scale * y;
 	glUniformMatrix4fv(renderer->model_location, 1, GL_FALSE, renderer->model);
 	glBindVertexArray(renderer->vertex_array);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid *) 0);
 }
 
+/*
+ * @brief Traverses through pixel array and draws if a pixel is designated.
+ */
 void chip8_render(const chip8_vm chip8[const static 1],
 		chip8_renderer renderer[const static 1])
 {
@@ -306,7 +309,7 @@ void chip8_render(const chip8_vm chip8[const static 1],
 	for (chip8_byte i = 0; i <  CHIP8_GFX_RES_HEIGHT; i++) {
 		for (chip8_byte j = 0; j < CHIP8_GFX_RES_WIDTH; j++) {
 			if (chip8->gfx[i][j]) {
-				chip8_draw_sprite(renderer, j, i);
+				chip8_draw(renderer, j, i);
 			}
 		}
 	}

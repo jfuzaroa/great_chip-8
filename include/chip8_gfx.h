@@ -1,5 +1,5 @@
-#ifndef CHIP8_GFX
-#define CHIP8_GFX
+#ifndef CHIP8_GFX_H
+#define CHIP8_GFX_H
 
 #include <GLFW/glfw3.h>
 
@@ -25,10 +25,10 @@ typedef struct chip8_renderer {
 	GLfloat height; /* resolution height */
 } chip8_renderer;
 
-chip8_rc chip8_init_gfx(GLFWwindow** const, chip8_renderer** const,
+extern chip8_rc chip8_init_gfx(GLFWwindow** const, chip8_renderer** const,
 		const GLfloat);
 
-void chip8_render(const chip8_vm[const static 1],
+extern void chip8_render(const chip8_vm[const static 1],
 		chip8_renderer[const static 1]);
 
-#endif
+#endif /* CHIP8_GFX_H */

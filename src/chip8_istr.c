@@ -1,12 +1,12 @@
 /*
  * @file chip8_istr.c
- * @brief Implements the chip-8 disassembler as well as opcode function definitions.
+ * @brief Implements the chip-8 disassembler and opcode function definitions.
  *
  * This contains the chip-8 disassembler for decoding instructions into their
- * corresponding functions. This aslo contains the opcode function definitions
+ * corresponding functions. This also contains the opcode function definitions
  * and instruction set array with the function pointers used by the main 
  * fetch-execute cycle.
- * Function descriptions refer to variables defined by the chip-8 object
+ * Function descriptions refer to variables defined in the chip-8 object
  * structure.
  *
  * @author Jonathan Alencar
@@ -14,7 +14,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include <GLFW/glfw3.h>
 
@@ -396,7 +395,6 @@ void chip8_MIV(chip8_vm chip8[const static 1])
     chip8->pc += 2;
 	CHIP8_ISTR_LOG("(0xA%03X) MIV %u", chip8->istr & 0x0FFF,
 			chip8->istr & 0x0FFF);
-	CHIP8_ISTR_LOG("memory[index] -> %u", chip8->mem[chip8->idx]);
 }
 
 /*
@@ -432,24 +430,30 @@ void chip8_DRWSPT(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 	const chip8_reg regy = (chip8->istr & 0x00F0) >> 4;
-	const chip8_byte spt_hgt = chip8->istr & 0x000F;
+	const chip8_byte hgt = chip8->istr & 0x000F;
+	const chip8_byte x = chip8->regs[regx];
+	const chip8_byte y = chip8->regs[regy];
 
 	chip8->regs[VF] = 0;
 
-	for (chip8_byte bit_row, i = 0; i < spt_hgt; i++) {
+	for (chip8_byte bit_row, i = 0; i < hgt; i++) {
 		bit_row = chip8->mem[chip8->idx+i];
 		for (chip8_byte j = 0; j < 8; j++) {
-			if ((bit_row << (7-j)) >> 7) {
-				if (chip8->gfx[regx+i][regy+j]) {
+			if ((chip8_byte) ((bit_row >> (7-j)) << 7)) {
+				if (chip8->gfx[y+i][x+j]) {
 					chip8->regs[VF] = 1;
 				}
-				chip8->gfx[regx+i][regy+j] ^= 1;
+				chip8->gfx[y+i][x+j] ^= 1;
 			}
 		}
 	}
 	chip8->pc += 2;
-	CHIP8_ISTR_LOG("(0xD%X%X%X) DRWSPT V%X, V%X, %u", regx, regy, spt_hgt,
-			regx, regy, spt_hgt);
+	CHIP8_ISTR_LOG("(0xD%X%X%X) DRWSPT V%X, V%X, %u", regx, regy, hgt,
+			regx, regy, hgt);
+	for (int i = 0; i < hgt; i++) {
+		CHIP8_ISTR_LOG("%02u: mem[%u] -> 0x%04X", i, chip8->idx+i,
+				chip8->mem[chip8->idx+i]);
+	}
 }
 
 /*
@@ -503,10 +507,10 @@ void chip8_MOVDLY(chip8_vm chip8[const static 1])
  */
 void chip8_WTKEY(chip8_vm chip8[const static 1])
 {
-	chip8_word key_mask;
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
-	
-	for (int i = 0; i < 16; i++) {
+	chip8_word key_mask = 0;
+
+	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
 		key_mask |= chip8->keys[i] << i;
 	}
 	CHIP8_ISTR_LOG("(0xF%X0A) WTKEY V%X", regx, regx);
@@ -565,7 +569,7 @@ void chip8_ISETSPT(chip8_vm chip8[const static 1])
 }
 
 /*
- * @brief Stores the BCD representation of V[X] in memory starting at the index.
+ * @brief Stores BCD representation of V[X] in memory starting at the index.
  * 0xFX33
  */
 void chip8_IBCD(chip8_vm chip8[const static 1])

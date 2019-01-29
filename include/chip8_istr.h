@@ -20,6 +20,6 @@ typedef void chip8_istr(chip8_vm[const static 1]);
 
 extern chip8_istr* chip8_istr_set[CHIP8_ISTR_SET_SIZE];
 
-chip8_opcode chip8_disassemble(const chip8_word);
+extern chip8_opcode chip8_disassemble(const chip8_word);
 
-#endif
+#endif /* CHIP8_ISTR_H */

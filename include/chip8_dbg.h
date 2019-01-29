@@ -2,6 +2,7 @@
 #define CHIP8_DBG_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #ifdef NDEBUG
 	#define CHIP8_DBG_ON 0
@@ -27,7 +28,7 @@ do {															    	\
 #define CHIP8_DBG_FIRST(...) CHIP8_DBG_FIRST0(__VA_ARGS__, 0)
 
 /*
- * @brief Remove the first argument from the list of arguments.
+ * @brief Removes the first argument from the list of arguments.
  */
 #define CHIP8_DBG_LAST0(_0, ...) __VA_ARGS__
 #define CHIP8_DBG_LAST(...) CHIP8_DBG_LAST0(__VA_ARGS__, 0)
@@ -45,7 +46,7 @@ CHIP8_DBG_PRE(CHIP8_DBG_FIRST(__VA_ARGS__) "%.0d",  \
 #define CHIP8_ISTR_LOG_PRE(MSG, ...)									\
 do {																    \
 	if (CHIP8_DBG_ON) {												    \
-		fprintf(stdout, "great_chip-8::ISTR: " MSG "\n", __VA_ARGS__);	\
+		printf("great_chip-8::ISTR: " MSG "\n", __VA_ARGS__);	        \
 	}																    \
 } while (false)
 
@@ -56,15 +57,31 @@ do {																    \
 #define CHIP8_ISTR_LOG_FIRST(...) CHIP8_ISTR_LOG_FIRST0(__VA_ARGS__, 0)
 
 /*
- * @brief Remove the first argument from the list of arguments.
+ * @brief Removes the first argument from the list of arguments.
  */
 #define CHIP8_ISTR_LOG_LAST0(_0, ...) __VA_ARGS__
 #define CHIP8_ISTR_LOG_LAST(...) CHIP8_ISTR_LOG_LAST0(__VA_ARGS__, 0)
 
 /*
- * @brief Prints instruction used for debugging.
+ * @brief Prints instruction operation for debugging.
  */
 #define CHIP8_ISTR_LOG(...)								        \
 	CHIP8_ISTR_LOG_PRE(CHIP8_ISTR_LOG_FIRST(__VA_ARGS__) "%.0d",\
 			CHIP8_ISTR_LOG_LAST(__VA_ARGS__))
-#endif
+
+/*
+ * @brief Dumps loaded memory contents to standard output.
+ */
+#define CHIP8_MEM_DUMP(CHIP8_MEM)                                           \
+do {                                                                        \
+	if (CHIP8_DBG_ON) {                                                     \
+		if ((chip8_byte*){ 0 } = CHIP8_MEM) {                               \
+			for (chip8_word I_MEM = 0; I_MEM < CHIP8_MEM_SIZE; I_MEM++) {   \
+				printf("%04u: chip8->mem[0x%04X] = 0x%04X\n", I_MEM, I_MEM, \
+						CHIP8_MEM[I_MEM]);                                  \
+			}                                                               \
+		}                                                                   \
+	}                                                                       \
+} while (false)
+
+#endif /* CHIP8_DBG_H */

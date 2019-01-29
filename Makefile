@@ -20,7 +20,7 @@ TRGT	= bin/$(EXEC)
 
 all: $(SRCS) $(HDRS) $(TRGT)
 
-release: CFLAGS=$(RLFLAGS) all
+release: WFLAGS=$(RLFLAGS) all
 
 $(TRGT): build $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@
