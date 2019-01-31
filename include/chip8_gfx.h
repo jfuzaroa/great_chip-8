@@ -21,8 +21,8 @@ typedef struct chip8_renderer {
 	GLfloat sprite_color[3]; /* sprite color */
 
 	GLfloat scale; /* resolution scalar */
-	GLfloat width; /* resolution width */
-	GLfloat height; /* resolution height */
+	GLuint width; /* resolution width */
+	GLuint height; /* resolution height */
 } chip8_renderer;
 
 extern chip8_rc chip8_init_gfx(GLFWwindow** const, chip8_renderer** const,

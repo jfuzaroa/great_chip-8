@@ -464,7 +464,7 @@ void chip8_SKPKEY(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-	if (chip8->keys[regx]) {
+	if (chip8_keys[regx]) {
 		chip8->pc += 4;
 	} else {
 		chip8->pc += 2;
@@ -480,7 +480,7 @@ void chip8_SKPNKEY(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
 
-	if (!chip8->keys[regx]) {
+	if (!chip8_keys[regx]) {
 		chip8->pc += 4;
 	} else {
 		chip8->pc += 2;
@@ -508,10 +508,18 @@ void chip8_MOVDLY(chip8_vm chip8[const static 1])
 void chip8_WTKEY(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
+	chip8_byte keys_state[CHIP8_KEY_SIZE];
+
+	memcpy(keys_state, chip8_keys, sizeof(chip8_keys));
+	glfwWaitEvents();
 
 	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
-//		key_mask |= chip8->keys[i] << i;
+		if (chip8_keys[i] != keys_state[i]) {
+			chip8->regs[regx] = i;
+			break;
+		}
 	}
+	chip8->pc += 2;
 	CHIP8_ISTR_LOG("(0xF%X0A) WTKEY V%X", regx, regx);
 }
 

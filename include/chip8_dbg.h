@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-//#define NDEBUG
+#define NDEBUG
 
 #ifdef NDEBUG
 	#define CHIP8_DBG_ON 0

@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <GLFW/glfw3.h>
 
 #include "chip8.h"
@@ -94,21 +93,36 @@ chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
 }
 
 /*
+ * @brief Translates GLFW key value into Chip-8 key map index.
+ */
+static inline int translate_glfw_key(const int key) {
+	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
+		if (chip8_key_map[i] == key) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+/*
  * @brief Processes keyboard mapped keyboard input using GLFW.
  */
-void chip8_process_input(chip8_vm chip8[const static 1],
-                                GLFWwindow* const window)
+void chip8_process_input(GLFWwindow* window, int key, int scan_code, int action,
+		int mods)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, true);
+	int chip8_key;
+
+	if (GLFW_KEY_ESCAPE == key &&  GLFW_PRESS == action) {
+		glfwSetWindowShouldClose(window, GL_TRUE);
 		return;
 	}
+	chip8_key = translate_glfw_key(key);
 
-	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
-		if (glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS) {
-			chip8->keys[i] = 1;
-		} else {
-			chip8->keys[i] = 0;
+	if (-1 != chip8_key) {
+		if (GLFW_PRESS == action) {
+			chip8_keys[chip8_key] = 1;
+		} else if (GLFW_RELEASE == action) {
+			chip8_keys[chip8_key] = 0;
 		}
 	}
 }
@@ -125,5 +139,6 @@ chip8_byte chip8_wait_key(GLFWwindow* const window)
 		if ((i+1) == CHIP8_KEY_SIZE) {
 			i = 0;
 		}
+		glfwPollEvents();
 	}
 }

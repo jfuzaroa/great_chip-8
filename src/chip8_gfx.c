@@ -9,15 +9,15 @@
 #include "chip8_gfx.h"
 
 /*
- * @brief GLFW error callback function.
+ * @brief Serves as the GLFW error callback function.
  */
-void chip8_glfw_error(int error, const char* description)
+void chip8_glfw_error_callback(int error, const char* description)
 {
 	fprintf(stderr, "great_chip-8::ERROR::OpenGL::GLFW::%s\n", description);
 }
 
 /*
- * @brief GLFW framebuffer size callback function.
+ * @brief Serves as the GLFW framebuffer size callback function.
  */
 void chip8_fb_size_callback(GLFWwindow* window, const GLsizei width,
 		const GLsizei height)
@@ -26,7 +26,7 @@ void chip8_fb_size_callback(GLFWwindow* window, const GLsizei width,
 }
 
 /*
- * @brief Creates new renderer object along with the including shader program.
+ * @brief Creates a new renderer object including a new shader program.
  */
 static chip8_renderer* chip8_new_renderer(void)
 {
@@ -48,7 +48,7 @@ static chip8_renderer* chip8_new_renderer(void)
 }
 
 /*
- * @brief Attempt compilation of GLSL shader given source code as string.
+ * @brief Attempts compilation of GLSL shader given source code as string.
  */
 static chip8_rc chip8_compile_shader(const GLuint shader,
 		const char shader_src[static 1])
@@ -79,7 +79,7 @@ static chip8_rc chip8_compile_shader(const GLuint shader,
 }
 
 /*
- * @brief Load and compile GLSL shader.
+ * @brief Loads and compiles GLSL shader.
  */
 static chip8_rc chip8_init_shader(const char shader_path[const static 1],
 		const GLenum shader_type, const GLuint program)
@@ -112,7 +112,7 @@ static chip8_rc chip8_init_shader(const char shader_path[const static 1],
 }
 
 /*
- * @brief Link compiled shaders and create shader program.
+ * @brief Links compiled shaders and creates shader program.
  */
 static chip8_rc chip8_link_gfx_program(const GLuint program)
 {
@@ -141,12 +141,15 @@ static chip8_rc chip8_link_gfx_program(const GLuint program)
 }
 
 /*
- * @brief Initialize OpenGL vertex render data.
+ * @brief Initializes OpenGL render data.
  */
-static void chip8_init_render_data(chip8_renderer renderer[const static 1])
+static void chip8_init_render_data(chip8_renderer renderer[const static 1],
+		const GLfloat window_scale)
 {
 	GLuint vertex_buffer;
 	GLuint element_buffer;
+	const GLuint window_width = CHIP8_GFX_RES_WIDTH * window_scale;
+	const GLuint window_height = CHIP8_GFX_RES_HEIGHT * window_scale;
 
 	const GLfloat vertices[8] = {
 			0.0f, 0.0f,
@@ -158,6 +161,13 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 	const GLsizei indices[6] = {
 			0, 1, 2,
 			1, 2, 3
+	};
+
+	const GLfloat orthographic_projection[16] = {
+			 2.0f/window_width,                0.0f, 0.0f, 0.0f,
+			              0.0f, -2.0f/window_height, 0.0f, 0.0f,
+			              0.0f,                0.0f, 0.0f, 0.0f,
+			             -1.0f,                1.0f, 0.0f, 1.0f
 	};
 
 	/* generate VAO, VBO, and EBO */
@@ -188,20 +198,19 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 	glDeleteBuffers(1, &vertex_buffer);
 	glDeleteBuffers(1, &element_buffer);
 
+	renderer->scale = window_scale;
+	renderer->width = window_width;
+	renderer->height = window_height;
 	renderer->model_location = glGetUniformLocation(renderer->shader_program,
 	                                                "model");
-	renderer->projection[0]  =  2.0f / renderer->width;
-	renderer->projection[5]  = -2.0f / renderer->height;
-	renderer->projection[12] = -1.0f;
-	renderer->projection[13] =  1.0f;
-	renderer->projection[15] =  1.0f;
-
-	renderer->model[0]  = renderer->scale;
-	renderer->model[5]  = renderer->scale;
+	renderer->model[0]  = window_scale;
+	renderer->model[5]  = window_scale;
 	renderer->model[15] = 1.0f;
 
+	memcpy(renderer->projection, orthographic_projection,
+			sizeof(renderer->projection));
 	memcpy(renderer->sprite_color, (const GLfloat[3]){1.0f, 1.0f, 1.0f},
-	       sizeof(renderer->sprite_color));
+			sizeof(renderer->sprite_color));
 
 	glUseProgram(renderer->shader_program);
 	glUniformMatrix4fv(
@@ -213,20 +222,41 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1])
 }
 
 /*
- * @brief Initialize OpenGL context, create window, and compile shader program.
+ * @brief Initializes renderer object with a compiled shader program.
  */
-chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
-		chip8_renderer** const renderer_ptr, const GLfloat scale)
+static chip8_rc chip8_init_renderer(chip8_renderer** const renderer_ptr,
+		const GLfloat window_scale)
 {
-	GLFWwindow* window;
-	chip8_renderer* renderer;
+	*renderer_ptr = chip8_new_renderer();
 
-	glfwSetErrorCallback(chip8_glfw_error);
+	if (!*renderer_ptr) {
+		return CHIP8_FAILURE;
+	} else if (!chip8_init_shader(CHIP8_VERT_SHADER_PATH, GL_VERTEX_SHADER,
+			(*renderer_ptr)->shader_program)
+		    || !chip8_init_shader(CHIP8_FRAG_SHADER_PATH, GL_FRAGMENT_SHADER,
+    		(*renderer_ptr)->shader_program)) {
+		CHIP8_ERR("ERROR::OpenGL::GLSL: Initialization failed");
+		return CHIP8_FAILURE;
+	} else if (!chip8_link_gfx_program((*renderer_ptr)->shader_program)) {
+		CHIP8_ERR("ERROR::OpenGL::GLSL::PROGRAM:: Linking failed");
+		return CHIP8_FAILURE;
+	}
+	chip8_init_render_data(*renderer_ptr, window_scale);
+	return CHIP8_SUCCESS;
+}
+
+/*
+ * @brief Creates GLFW window with proper OpenGL context.
+ */
+static chip8_rc chip8_init_glfw(GLFWwindow** const window_ptr,
+		const GLfloat window_scale)
+{
+	glfwSetErrorCallback(chip8_glfw_error_callback);
 
 	if (!glfwInit()) {
-		CHIP8_ERR("ERROR::OpenGL::GLFW: Initialization failed");
-		goto ERROR;
+		return CHIP8_FAILURE;
 	}
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -235,51 +265,42 @@ chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE)
 #endif
 
-	*window_ptr = glfwCreateWindow(scale * CHIP8_GFX_RES_WIDTH,
-			scale * CHIP8_GFX_RES_HEIGHT, "great_chip-8", NULL, NULL);
+	*window_ptr = glfwCreateWindow(window_scale * CHIP8_GFX_RES_WIDTH,
+	                               window_scale * CHIP8_GFX_RES_HEIGHT,
+	                               "great_chip-8", NULL, NULL);
 
 	if (!*window_ptr) {
 		CHIP8_ERR("ERROR::OpenGL::GLFW: Window creation failed");
-		goto ERROR;
+		return CHIP8_FAILURE;
 	}
-	window = *window_ptr;
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, chip8_fb_size_callback);
+	glfwMakeContextCurrent(*window_ptr);
+	glfwSetKeyCallback(*window_ptr, chip8_process_input);
+	glfwSetFramebufferSizeCallback(*window_ptr, chip8_fb_size_callback);
 	glfwSwapInterval(1);
+	return CHIP8_SUCCESS;
+}
+
+/*
+ * @brief Initializes OpenGL context, GLFW, GLEW, and the Chip-8 render object.
+ */
+chip8_rc chip8_init_gfx(GLFWwindow** const window_ptr,
+		chip8_renderer** const renderer_ptr, const GLfloat window_scale)
+{
 	glewExperimental = GL_TRUE;
 
-	if (GLEW_OK != glewInit()) {
+	if (!chip8_init_glfw(window_ptr, window_scale)) {
+		CHIP8_ERR("ERROR::OpenGL::GLFW: Initialization failed");
+		goto ERROR;
+	} else if (GLEW_OK != glewInit()) {
 		CHIP8_ERR("ERROR::OpenGL::GLEW: Initialization failed");
 		goto ERROR;
-	}
-	*renderer_ptr = chip8_new_renderer();
-
-	if (!*renderer_ptr) {
+	} else if (!chip8_init_renderer(renderer_ptr, window_scale)) {
 		CHIP8_ERR("ERROR::OpenGL::RENDERER: Initialization failed");
 		goto ERROR;
 	}
-	renderer = *renderer_ptr;
-	renderer->scale = scale;
-	renderer->width = scale * CHIP8_GFX_RES_WIDTH;
-	renderer->height = scale * CHIP8_GFX_RES_HEIGHT;
-
-	if (!chip8_init_shader(CHIP8_VERT_SHADER_PATH, GL_VERTEX_SHADER,
-			renderer->shader_program)
-		|| !chip8_init_shader(CHIP8_FRAG_SHADER_PATH, GL_FRAGMENT_SHADER,
-			renderer->shader_program)) {
-		CHIP8_ERR("ERROR::OpenGL::GLSL: Initialization failed");
-		goto ERROR;
-	}
-
-	if (!chip8_link_gfx_program(renderer->shader_program)) {
-		CHIP8_ERR("ERROR::OpenGL::GLSL::PROGRAM:: Linking failed");
-		goto ERROR;
-	}
-	chip8_init_render_data(renderer);
 	return CHIP8_SUCCESS;
 
 ERROR:
-	glfwDestroyWindow(window);
 	glfwTerminate();
 	return CHIP8_FAILURE;
 }
