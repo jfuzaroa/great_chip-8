@@ -5,7 +5,7 @@ WFLAGS	= -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow \
 		  -Wnested-externs -Wmissing-include-dirs
 LDFLAGS = -lGL -lGLEW -lglfw
 # OPFLAGS = 
-RLFLAGS	= -march=native -O2 -pipe
+RLFLAGS	= -DNBDEBUG=1 -march=native -O3 -pipe
 
 ifeq ($(CC), gcc)
     CFLAGS += -Wjump-misses-init -Wlogical-op
@@ -20,7 +20,8 @@ TRGT	= bin/$(EXEC)
 
 all: $(SRCS) $(HDRS) $(TRGT)
 
-release: WFLAGS=$(RLFLAGS) all
+release: WFLAGS=$(RLFLAGS)
+release: all
 
 $(TRGT): build $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@

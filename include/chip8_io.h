@@ -29,4 +29,6 @@ extern chip8_rc chip8_load_shader(const char[const restrict static 1],
 extern void chip8_process_input(chip8_vm[const static 1],
 		GLFWwindow* const window);
 
+extern chip8_byte chip8_wait_key(GLFWwindow* const window);
+
 #endif /* CHIP8_IO_H */

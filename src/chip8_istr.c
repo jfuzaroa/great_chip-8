@@ -508,10 +508,9 @@ void chip8_MOVDLY(chip8_vm chip8[const static 1])
 void chip8_WTKEY(chip8_vm chip8[const static 1])
 {
 	const chip8_reg regx = (chip8->istr & 0x0F00) >> 8;
-	chip8_word key_mask = 0;
 
 	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
-		key_mask |= chip8->keys[i] << i;
+//		key_mask |= chip8->keys[i] << i;
 	}
 	CHIP8_ISTR_LOG("(0xF%X0A) WTKEY V%X", regx, regx);
 }

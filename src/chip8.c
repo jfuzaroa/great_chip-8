@@ -12,6 +12,8 @@
 #include "chip8_gfx.h"
 #include "chip8_dbg.h"
 
+static GLFWwindow* window;
+
 static chip8_vm* chip8_new_vm(void)
 {
 	chip8_vm* chip8 = calloc(1, sizeof(*chip8));
@@ -26,8 +28,8 @@ static chip8_vm* chip8_new_vm(void)
 	return chip8;
 }
 
-static chip8_rc chip8_init_vm (chip8_vm** const chip8,
-		const char* argv[static 1], const size_t rom_index)
+static chip8_rc chip8_init_vm(chip8_vm** const chip8,
+		const char* argv[static 2], const size_t rom_index)
 {
 	*chip8 = chip8_new_vm();
 
@@ -61,12 +63,35 @@ static inline chip8_word chip8_fetch(chip8_vm chip8[const static 1])
  */
 static inline chip8_rc chip8_execute(chip8_vm chip8[const static 1])
 {
+	static time_t timer;
+	static chip8_byte cycle;
 	const chip8_opcode opcode = chip8_disassemble(chip8->istr);
 
 	if (NOP == opcode) {
 		return CHIP8_FAILURE;
 	}
-	chip8_istr_set[opcode](chip8);
+
+	chip8->dly_tmr--;
+	if (cycle == 60) {
+		if (chip8->dly_tmr) {
+		}
+
+		if (chip8->snd_tmr) {
+			chip8->snd_tmr--;
+		}
+	} else if (time(NULL) == timer) {
+		cycle++;
+	} else {
+		cycle = 0;
+	}
+
+	if (WTKEY == opcode) {
+		chip8->keys[chip8_wait_key(window)] = 1;
+	} else {
+		chip8_istr_set[opcode](chip8);
+	}
+
+	timer = time(NULL);
 	return CHIP8_SUCCESS;
 }
 
@@ -77,7 +102,6 @@ int main(int argc, char* argv[argc+1])
 	size_t flag_index = 2;
 	chip8_vm* chip8;
 	chip8_renderer* renderer;
-	GLFWwindow* window;
 
 	srand((unsigned) time(NULL));
 

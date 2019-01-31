@@ -104,11 +104,26 @@ void chip8_process_input(chip8_vm chip8[const static 1],
 		return;
 	}
 
-	for (int i = 0; i < CHIP8_KEY_SIZE; i++) {
+	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
 		if (glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS) {
 			chip8->keys[i] = 1;
 		} else {
 			chip8->keys[i] = 0;
+		}
+	}
+}
+
+/*
+ * @brief Halts process and returns next keyboard input
+ */
+chip8_byte chip8_wait_key(GLFWwindow* const window)
+{
+	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
+		if (glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS) {
+			return i;
+		}
+		if ((i+1) == CHIP8_KEY_SIZE) {
+			i = 0;
 		}
 	}
 }
