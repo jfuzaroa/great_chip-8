@@ -3,6 +3,7 @@
 
 #include "chip8.h"
 #include "chip8_io.h"
+#include "chip8_dbg.h"
 
 /*	  Chip-8 Keypad         Keyboard
  *	   +-+-+-+-+			+-+-+-+-+
@@ -15,23 +16,23 @@
  *	   |A|0|B|F|			|Z|X|C|V|
  *	   +-+-+-+-+			+-+-+-+-+
  */
-static const int chip8_key_map[CHIP8_KEY_SIZE] = {
-	GLFW_KEY_X,
-	GLFW_KEY_1,
-	GLFW_KEY_W,
-	GLFW_KEY_3,
-	GLFW_KEY_A,
-	GLFW_KEY_2,
-	GLFW_KEY_D,
-	GLFW_KEY_Q,
-	GLFW_KEY_S,
-	GLFW_KEY_E,
-	GLFW_KEY_Z,
-	GLFW_KEY_C,
-	GLFW_KEY_4,
-	GLFW_KEY_R,
-	GLFW_KEY_F,
-	GLFW_KEY_V
+static const int glfw_key_map[CHIP8_KEY_SIZE] = {
+		[CHIP8_KEY_0] = GLFW_KEY_X,
+		[CHIP8_KEY_1] = GLFW_KEY_1,
+		[CHIP8_KEY_2] = GLFW_KEY_2,
+		[CHIP8_KEY_3] = GLFW_KEY_3,
+		[CHIP8_KEY_4] = GLFW_KEY_Q,
+		[CHIP8_KEY_5] = GLFW_KEY_W,
+		[CHIP8_KEY_6] = GLFW_KEY_E,
+		[CHIP8_KEY_7] = GLFW_KEY_A,
+		[CHIP8_KEY_8] = GLFW_KEY_S,
+		[CHIP8_KEY_9] = GLFW_KEY_D,
+		[CHIP8_KEY_A] = GLFW_KEY_Z,
+		[CHIP8_KEY_B] = GLFW_KEY_C,
+		[CHIP8_KEY_C] = GLFW_KEY_4,
+		[CHIP8_KEY_D] = GLFW_KEY_R,
+		[CHIP8_KEY_E] = GLFW_KEY_F,
+		[CHIP8_KEY_F] = GLFW_KEY_V
 };
 
 /*
@@ -95,20 +96,20 @@ chip8_rc chip8_load_shader(const char shader_path[const restrict static 1],
 /*
  * @brief Translates GLFW key value into Chip-8 key map index.
  */
-static inline int translate_glfw_key(const int key) {
-	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
-		if (chip8_key_map[i] == key) {
+static inline chip8_key chip8_translate_glfw_key(const int key) {
+	for (int i = 0; i < CHIP8_KEY_SIZE; i++) {
+		if (glfw_key_map[i] == key) {
 			return i;
 		}
 	}
-	return -1;
+	return CHIP8_KEY_UNKNOWN;
 }
 
 /*
  * @brief Processes keyboard mapped keyboard input using GLFW.
  */
-void chip8_process_input(GLFWwindow* window, int key, int scan_code, int action,
-		int mods)
+void chip8_key_callback(GLFWwindow* const window,
+		const int key, const int scan_code, const int action, const int mods)
 {
 	int chip8_key;
 
@@ -116,29 +117,12 @@ void chip8_process_input(GLFWwindow* window, int key, int scan_code, int action,
 		glfwSetWindowShouldClose(window, GL_TRUE);
 		return;
 	}
-	chip8_key = translate_glfw_key(key);
+	chip8_key = chip8_translate_glfw_key(key);
 
-	if (-1 != chip8_key) {
-		if (GLFW_PRESS == action) {
-			chip8_keys[chip8_key] = 1;
-		} else if (GLFW_RELEASE == action) {
-			chip8_keys[chip8_key] = 0;
-		}
-	}
-}
-
-/*
- * @brief Halts process and returns next keyboard input
- */
-chip8_byte chip8_wait_key(GLFWwindow* const window)
-{
-	for (chip8_byte i = 0; i < CHIP8_KEY_SIZE; i++) {
-		if (glfwGetKey(window, chip8_key_map[i]) == GLFW_PRESS) {
-			return i;
-		}
-		if ((i+1) == CHIP8_KEY_SIZE) {
-			i = 0;
-		}
-		glfwPollEvents();
+	if (GLFW_PRESS == action) {
+		chip8_keys[chip8_key] = true;
+		CHIP8_KEY_PRESS(chip8_key);
+	} else if (GLFW_RELEASE == action) {
+		chip8_keys[chip8_key] = false;
 	}
 }

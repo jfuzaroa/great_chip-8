@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define NDEBUG
-
 #ifdef NDEBUG
 	#define CHIP8_DBG_ON 0
 #else
@@ -70,6 +68,16 @@ do {																    \
 #define CHIP8_ISTR_LOG(...)								        \
 	CHIP8_ISTR_LOG_PRE(CHIP8_ISTR_LOG_FIRST(__VA_ARGS__) "%.0d",\
 			CHIP8_ISTR_LOG_LAST(__VA_ARGS__))
+
+/*
+ * @brief Prints key input to standard output for debugging.
+ */
+#define CHIP8_KEY_PRESS(KEY)                                    \
+do {                                                            \
+	if (CHIP8_DBG_ON) {                                         \
+		printf("great_chip-8::INPUT: %X\n", (int) {0} = KEY);   \
+	}                                                           \
+} while (false)
 
 /*
  * @brief Dumps loaded memory contents to standard output.

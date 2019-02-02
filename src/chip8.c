@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
 #include <time.h>
 #include <getopt.h>
 #include <GLFW/glfw3.h>
@@ -69,9 +68,9 @@ static inline chip8_rc chip8_execute(chip8_vm chip8[const static 1])
 		return CHIP8_FAILURE;
 	}
 
-	chip8->dly_tmr--;
 	if (cycle == 60) {
 		if (chip8->dly_tmr) {
+			chip8->dly_tmr--;
 		}
 
 		if (chip8->snd_tmr) {
@@ -83,36 +82,21 @@ static inline chip8_rc chip8_execute(chip8_vm chip8[const static 1])
 		cycle = 0;
 	}
 	chip8_istr_set[opcode](chip8);
-	timer = time(NULL);
+	time(&timer);
 	return CHIP8_SUCCESS;
 }
 
 int main(int argc, char* argv[argc+1])
 {
 	int exit_state = EXIT_SUCCESS;
-	size_t rom_index = 1;
 	chip8_vm* chip8;
 	GLFWwindow* window;
 	chip8_renderer* renderer;
 
 	srand((unsigned) time(NULL));
 
-//	if (argc < 2) {
-//		CHIP8_PUTS("Missing ROM file\n"
-//				"Try 'great_chip-8 --help' for help.");
-//		return exit_state;
-//	} else if ('-' == argv[1][0]) {
-//		if (!strcmp(argv[1], "--help")) {
-//			CHIP8_PUTS("Usage: \"great_chip-8 -[OPTIONS] [ROM]\"");
-//			return exit_state;
-//		}
-//
-//		rom_index = 2;
-//		flag_index = 1;
-//	}
-
 	/* initialize Chip-8 virtual machine */
-	if (!chip8_init_vm(&chip8, argv, rom_index)) {
+	if (!chip8_init_vm(&chip8, argv, 1)) {
 		CHIP8_ERR("ERROR: Virtual machine initialization failed");
 		exit_state = CHIP8_FAILURE;
 		goto EXIT;
@@ -134,9 +118,12 @@ int main(int argc, char* argv[argc+1])
 			exit_state = CHIP8_FAILURE;
 			goto EXIT;
 		}
-		glfwPollEvents();
-		chip8_render(chip8, renderer);
-		glfwSwapBuffers(window);
+
+		if (draw_flag) {
+			chip8_render(chip8, renderer);
+			glfwSwapBuffers(window);
+			draw_flag = false;
+		}
 	}
 
 EXIT:

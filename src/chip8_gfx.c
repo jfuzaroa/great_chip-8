@@ -209,6 +209,7 @@ static void chip8_init_render_data(chip8_renderer renderer[const static 1],
 
 	memcpy(renderer->projection, orthographic_projection,
 			sizeof(renderer->projection));
+
 	memcpy(renderer->sprite_color, (const GLfloat[3]){1.0f, 1.0f, 1.0f},
 			sizeof(renderer->sprite_color));
 
@@ -256,7 +257,6 @@ static chip8_rc chip8_init_glfw(GLFWwindow** const window_ptr,
 	if (!glfwInit()) {
 		return CHIP8_FAILURE;
 	}
-
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -274,7 +274,7 @@ static chip8_rc chip8_init_glfw(GLFWwindow** const window_ptr,
 		return CHIP8_FAILURE;
 	}
 	glfwMakeContextCurrent(*window_ptr);
-	glfwSetKeyCallback(*window_ptr, chip8_process_input);
+	glfwSetKeyCallback(*window_ptr, chip8_key_callback);
 	glfwSetFramebufferSizeCallback(*window_ptr, chip8_fb_size_callback);
 	glfwSwapInterval(1);
 	return CHIP8_SUCCESS;

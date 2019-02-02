@@ -5,7 +5,7 @@ WFLAGS	= -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow \
 		  -Wnested-externs -Wmissing-include-dirs
 LDFLAGS = -lGL -lGLEW -lglfw
 # OPFLAGS = 
-RLFLAGS	= -DNBDEBUG=1 -march=native -O3 -pipe
+RLFLAGS	= -DNDEBUG=1 -march=native -O2 -pipe
 
 ifeq ($(CC), gcc)
     CFLAGS += -Wjump-misses-init -Wlogical-op

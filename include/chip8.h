@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #define CHIP8_MEM_SIZE 4096
 #define CHIP8_GFX_RES_WIDTH 64
@@ -31,6 +32,27 @@ typedef enum chip8_register {
 	REG_BANK_SIZE
 } chip8_reg;
 
+typedef enum chip8_key {
+	CHIP8_KEY_UNKNOWN = -1,
+	CHIP8_KEY_0,
+	CHIP8_KEY_1,
+	CHIP8_KEY_2,
+	CHIP8_KEY_3,
+	CHIP8_KEY_4,
+	CHIP8_KEY_5,
+	CHIP8_KEY_6,
+	CHIP8_KEY_7,
+	CHIP8_KEY_8,
+	CHIP8_KEY_9,
+	CHIP8_KEY_A,
+	CHIP8_KEY_B,
+	CHIP8_KEY_C,
+	CHIP8_KEY_D,
+	CHIP8_KEY_E,
+	CHIP8_KEY_F,
+	CHIP8_KEY_SIZE
+} chip8_key;
+
 /* 
  * @brief Chip-8 virtual machine structure.
  */
@@ -47,5 +69,7 @@ typedef struct chip8_virtual_machine {
 	chip8_byte dly_tmr; /* used for timing events */
 	chip8_byte snd_tmr; /* used for sound effects */
 } chip8_vm;
+
+bool draw_flag;
 
 #endif /* CHIP8_H */

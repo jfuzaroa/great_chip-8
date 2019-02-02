@@ -1,7 +1,10 @@
 #ifndef CHIP8_GFX_H
 #define CHIP8_GFX_H
 
+#include <stdbool.h>
 #include <GLFW/glfw3.h>
+
+#include "chip8.h"
 
 #define CHIP8_VERT_SHADER_PATH "./src/shaders/chip8_shader.v.glsl"
 #define CHIP8_FRAG_SHADER_PATH "./src/shaders/chip8_shader.f.glsl"
