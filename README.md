@@ -46,11 +46,10 @@ In short order:
 `$ CMake CMakeLists.txt`
 
 ## Running
-`
+```
 $ cd great_chip-8
-
-$ ./bin/great_chip-8 ./roms/_[ROM_FILE]_
-`
+$ ./bin/great_chip-8 ./roms/_[rom].ch8_
+```
 
 ## Acknowledgements
 [Google](https://www.google.com)
