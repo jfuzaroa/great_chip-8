@@ -40,21 +40,27 @@ In short order:
 ## Building
 
 ### _Make_
-`make release`
+`$ make release`
 
 ### _CMake_
-`CMake CMakeLists.txt`
+`$ CMake CMakeLists.txt`
 
 ## Running
 `
-cd great_chip-8
-./bin/great_chip-8 ./roms/_[ROM_FILE]_
+$ cd great_chip-8
+
+$ ./bin/great_chip-8 ./roms/_[ROM_FILE]_
 `
 
 ## Acknowledgements
 [Google](https://www.google.com)
+
 [EmuDev Subreddit](https://www.reddit.com/r/EmuDev)
+
 [CHIP-8 Wikipedia article](https://www.wikiwand.com/en/CHIP-8)
+
 [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
+
 [How to write an emulator (Chip-8 interpreter)](http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter)
+
 [Learn OpenGL](https://learnopengl.com)
