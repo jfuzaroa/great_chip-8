@@ -260,9 +260,11 @@ static chip8_rc chip8_init_glfw(GLFWwindow** const window_ptr,
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 #ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GL_TRUE)
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPATA, GLFW_TRUE)
 #endif
 
 	*window_ptr = glfwCreateWindow(window_scale * CHIP8_GFX_RES_WIDTH,
