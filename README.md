@@ -48,7 +48,7 @@ In short order:
 ## Running
 ```
 $ cd great_chip-8
-$ ./bin/great_chip-8 ./roms/_[rom].ch8_
+$ ./bin/great_chip-8 ./roms/[rom_title].ch8
 ```
 
 ## Acknowledgements
